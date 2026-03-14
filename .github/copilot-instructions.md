@@ -45,6 +45,16 @@ Prefixing with ticket IDs (e.g., `ABC-123: ...`) is optional—use it when your 
 
 When in doubt, write a short, descriptive header and a body that explains the why, not only the what.
 
+### AI-Assisted Commits
+
+If a commit was significantly produced with GitHub Copilot, add a trailer:
+
+```
+Co-Authored-By: GitHub Copilot <copilot@github.com>
+```
+
+This goes in the footer section, after any `Fixes #` or `Refs #` lines.
+
 ---
 ## File Header Conventions
 
