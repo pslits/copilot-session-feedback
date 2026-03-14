@@ -1,6 +1,6 @@
 ---
 name: deep-thinking
-description: "Applies the four-phase deep-thinking methodology to any coding or design task. Combines the Planning pattern (goal decomposition into ordered atomic steps with preconditions and effects), the Reflection pattern (adversarial self-critique of assumptions and failure modes), the Goal Setting and Monitoring pattern (observable success criteria per phase), and the Human-in-the-Loop gate (plan approval before execution begins). Use when: a task requires careful reasoning before action, when asked to 'plan first', 'think before acting', 'reason through', 'deep think', 'beast mode', 'thorough analysis', or 'don't rush'. Triggers on: 'plan first', 'think through', 'reason deeply', 'deep think', 'beast mode', 'thorough plan', 'analyze before acting', 'planning pattern', 'reflect before'."
+description: "Applies the six-phase deep-thinking methodology to any coding or design task. Phase 0 (Clarify) is a mandatory human intake gate that must complete before any reading or planning begins. Combines the Planning pattern (goal decomposition into ordered atomic steps with preconditions and effects), the Reflection pattern (adversarial self-critique of assumptions and failure modes), the Goal Setting and Monitoring pattern (observable success criteria per phase), and the Human-in-the-Loop gate (plan approval before execution begins). Use when: a task requires careful reasoning before action, when asked to 'plan first', 'think before acting', 'reason through', 'deep think', 'beast mode', 'thorough analysis', or 'don't rush'. Triggers on: 'plan first', 'think through', 'reason deeply', 'deep think', 'beast mode', 'thorough plan', 'analyze before acting', 'planning pattern', 'reflect before'."
 metadata:
   version: "1.0.0"
   patterns:
@@ -14,6 +14,26 @@ metadata:
 ## Deep-Thinking Methodology
 
 Five patterns from agentic design theory, composed into a single sequenced procedure.
+
+---
+
+### Phase 0 — Clarify  *(Human-in-the-Loop pattern: intake gate)*
+
+**Do not read files. Do not plan. Ask first.**
+
+If any of the following are missing or ambiguous, present structured questions to the human and wait for answers before continuing:
+
+| Question | Why it matters |
+|----------|---------------|
+| What is the goal in one sentence? | Prevents misaligned plans |
+| What is in scope? | Prevents overreach |
+| What must not change (hard constraints)? | Prevents broken contracts |
+| What does "done" look like? | Provides observable acceptance signal |
+| Is there an existing design doc or plan? | Prevents duplicate work |
+
+Only proceed to Phase 1 when all five questions are answered, even if answers are brief.
+
+**Phase 0 output:** A confirmed task statement and scope boundary.
 
 ---
 
