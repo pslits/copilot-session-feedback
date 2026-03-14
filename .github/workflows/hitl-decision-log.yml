@@ -1,0 +1,88 @@
+name: HITL Decision Log
+
+# Records a structured decision evidence comment whenever an approve or reject
+# decision label is applied to a HITL issue.
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  record-decision:
+    name: Record decision evidence
+    runs-on: ubuntu-latest
+    if: |
+      github.event.label.name == 'decision:accepted' ||
+      github.event.label.name == 'decision:rejected'
+    permissions:
+      issues: write
+
+    steps:
+      - name: Post decision evidence comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue  = context.payload.issue;
+            const label  = context.payload.label.name;
+            const { owner, repo } = context.repo;
+            const issueNumber    = issue.number;
+            const decisionType   = label === 'decision:accepted' ? 'ACCEPTED' : 'REJECTED';
+            const timestamp      = new Date().toISOString();
+            const issueLabels    = issue.labels.map(l => l.name);
+            const riskLabel      = issueLabels.find(l => l.startsWith('risk:')) ?? 'risk:(unset)';
+
+            // Find the most recent approve/reject command comment for rationale
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo,
+              issue_number: issueNumber,
+              per_page: 100,
+            });
+
+            // Walk backwards to find the approve/reject command and extract rationale
+            let decider   = '(unknown)';
+            let rationale = '(no explicit rationale recorded)';
+            for (let i = comments.length - 1; i >= 0; i--) {
+              const c = comments[i];
+              const b = c.body?.trim() ?? '';
+              if (decisionType === 'ACCEPTED' && b.startsWith('/approve')) {
+                decider   = c.user.login;
+                rationale = b.replace('/approve', '').trim() || 'Approved without additional comment.';
+                break;
+              }
+              if (decisionType === 'REJECTED' && b.startsWith('/reject')) {
+                decider   = c.user.login;
+                rationale = b.replace('/reject', '').trim() || '(no rationale)';
+                break;
+              }
+            }
+
+            const adrPath = `docs/adr/XXXX-${issue.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50)}.md`;
+
+            await github.rest.issues.createComment({
+              owner, repo,
+              issue_number: issueNumber,
+              body: [
+                '## Decision Evidence Record',
+                '',
+                '| Field | Value |',
+                '|---|---|',
+                `| **Decision** | \`${decisionType}\` |`,
+                `| **Decider** | @${decider} |`,
+                `| **Timestamp** | \`${timestamp}\` |`,
+                `| **Risk Tier** | \`${riskLabel}\` |`,
+                `| **Issue** | #${issueNumber} |`,
+                '',
+                '### Rationale',
+                rationale,
+                '',
+                '---',
+                '',
+                '### Required Follow-up Actions',
+                '',
+                `- [ ] **Recorder**: Create ADR at \`${adrPath}\` using the [ADR template](https://github.com/${owner}/${repo}/blob/main/docs/adr/0000-template.md) and link back to this issue.`,
+                '- [ ] **Requester**: Complete execution (if `ACCEPTED`) or document the alternative path (if `REJECTED`).',
+                '- [ ] **Requester**: Apply `state:postmortem` once execution is complete.',
+                `- [ ] **Recorder**: Complete the [closure checklist](https://github.com/${owner}/${repo}/blob/main/docs/hitl/closure-checklist.md) before closing this issue.`,
+                '',
+                '> This comment is an immutable audit record. Do not edit it.',
+              ].join('\n'),
+            });

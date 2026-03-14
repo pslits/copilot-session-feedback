@@ -1,0 +1,115 @@
+name: HITL Intervention Request
+description: Request a human-in-the-loop intervention gate for an agentic or automated action.
+title: "[HITL] "
+labels:
+  - "state:intake"
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Human-in-the-Loop Intervention Request
+        Complete all required fields. Incomplete requests will be returned to `state:intake` until all sections are satisfied.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Intervention Summary
+      description: One-sentence description of the action requiring human approval.
+      placeholder: "e.g. Deploy schema migration v4.7 to production database cluster"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and Trigger
+      description: What is happening, why now, and what automated system or agent is requesting this gate?
+      placeholder: |
+        - System/agent: ...
+        - Trigger event: ...
+        - Background context: ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk_tier
+    attributes:
+      label: Risk Tier
+      description: Select the highest applicable risk tier. When in doubt, choose higher.
+      options:
+        - "low"
+        - "medium"
+        - "high"
+        - "critical"
+    validations:
+      required: true
+
+  - type: textarea
+    id: blast_radius
+    attributes:
+      label: Blast Radius
+      description: What systems, data, users, or services are affected if this action proceeds or fails?
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: Options Considered
+      description: List at least two alternatives that were evaluated before landing on the proposed action.
+      placeholder: |
+        1. Do nothing / defer — consequence: …
+        2. Proposed action — consequence: …
+        3. Alternative approach — consequence: …
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_action
+    attributes:
+      label: Proposed Action
+      description: Exact description of what will be executed upon approval.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback Strategy
+      description: How will the action be reversed if it produces an unacceptable outcome?
+    validations:
+      required: true
+
+  - type: input
+    id: deadline
+    attributes:
+      label: Deadline / SLA
+      description: ISO 8601 datetime by which a human decision is required (e.g. 2026-03-15T18:00Z).
+      placeholder: "YYYY-MM-DDTHH:MMZ"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: approver_role
+    attributes:
+      label: Required Approver Role
+      description: Minimum role that must approve this request.
+      options:
+        - "reviewer"
+        - "approver"
+        - "owner"
+    validations:
+      required: true
+
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Related Artifacts
+      description: Links to PRs, ADRs, runbooks, logs, dashboards, or other relevant evidence.
+      placeholder: |
+        - PR: https://github.com/…
+        - Runbook: https://…
+        - Logs: https://…
+    validations:
+      required: false

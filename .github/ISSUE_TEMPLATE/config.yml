@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: HITL Runbook
+    url: https://github.com/pslits/copilot-session-feedback/blob/main/docs/hitl/runbook.md
+    about: Read the operator runbook before opening an intervention request.
+  - name: Label Taxonomy
+    url: https://github.com/pslits/copilot-session-feedback/blob/main/docs/hitl/labels.md
+    about: Review the label taxonomy used by the HITL workflow.

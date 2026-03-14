@@ -1,0 +1,40 @@
+name: Sync HITL Labels
+
+# Runs whenever labels.md changes on the default branch,
+# or can be triggered manually for an immediate sync.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/hitl/labels.md'
+  workflow_dispatch:
+    inputs:
+      delete_unlisted:
+        description: 'Delete HITL labels not in the taxonomy (state:/risk:/event:/decision: prefixes)'
+        type: boolean
+        default: false
+
+jobs:
+  sync:
+    name: Sync labels to repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # to read the repo
+      issues: write   # gh label create/edit/delete uses the Issues API
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make sync script executable
+        run: chmod +x .github/scripts/sync-labels.sh
+
+      - name: Sync labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DELETE_FLAG=""
+          if [[ "${{ inputs.delete_unlisted }}" == "true" ]]; then
+            DELETE_FLAG="--delete-unlisted"
+          fi
+          .github/scripts/sync-labels.sh $DELETE_FLAG

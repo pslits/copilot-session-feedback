@@ -1,0 +1,165 @@
+name: HITL Gate
+
+# Processes slash-commands posted as issue comments.
+# Only runs on issues (not pull requests) that carry a state:* label.
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  process-command:
+    name: Process gate command
+    runs-on: ubuntu-latest
+    # Skip PR comments and comments that contain none of the known commands
+    if: |
+      github.event.issue.pull_request == null &&
+      (
+        contains(github.event.comment.body, '/approve') ||
+        contains(github.event.comment.body, '/reject')  ||
+        contains(github.event.comment.body, '/need-info') ||
+        contains(github.event.comment.body, '/escalate')
+      )
+    permissions:
+      issues: write
+
+    steps:
+      - name: Execute command
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment   = context.payload.comment;
+            const issue     = context.payload.issue;
+            const { owner, repo } = context.repo;
+            const issueNumber    = issue.number;
+            const commandText    = comment.body.trim();
+            const actor          = comment.user.login;
+            const association    = comment.author_association; // OWNER|MEMBER|COLLABORATOR|CONTRIBUTOR|NONE
+
+            // --- Guard: only process HITL issues (must have at least one state:* label) ---
+            const labels = issue.labels.map(l => l.name);
+            if (!labels.some(l => l.startsWith('state:'))) return;
+
+            const privileged = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(association);
+
+            // --- Helpers ---
+            const addLabel    = async (l) => { try { await github.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels: [l] }); } catch (_) {} };
+            const removeLabel = async (l) => { try { await github.rest.issues.removeLabel({ owner, repo, issue_number: issueNumber, label: l }); } catch (_) {} };
+            const react       = async (c) => { try { await github.rest.reactions.createForIssueComment({ owner, repo, comment_id: comment.id, content: c }); } catch (_) {} };
+            const reply       = async (b) => github.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body: b });
+
+            const clearStateLabels    = async () => { for (const l of labels.filter(l => l.startsWith('state:')))    await removeLabel(l); };
+            const clearDecisionLabels = async () => { for (const l of labels.filter(l => l.startsWith('decision:'))) await removeLabel(l); };
+
+            const currentState = labels.find(l => l.startsWith('state:')) ?? '(none)';
+
+            // ─────────────────────────────────────────────
+            // /approve
+            // ─────────────────────────────────────────────
+            if (commandText.startsWith('/approve')) {
+              if (!privileged) {
+                await react('-1');
+                await reply(`@${actor} Only authorized collaborators (Approver role) may use \`/approve\`.`);
+                return;
+              }
+              if (currentState !== 'state:awaiting-human') {
+                await react('-1');
+                await reply(`@${actor} \`/approve\` requires the issue to be in \`state:awaiting-human\`. Current state: \`${currentState}\`.`);
+                return;
+              }
+              await clearStateLabels();
+              await clearDecisionLabels();
+              await addLabel('state:approved');
+              await addLabel('decision:accepted');
+              await react('+1');
+              await reply([
+                '## Approved',
+                '',
+                `@${actor} has approved this intervention request.`,
+                '',
+                `The issue is now in \`state:approved\`. The requester may proceed with execution.`,
+                '',
+                '**Next steps:**',
+                '1. Apply `state:executing` when the action begins.',
+                '2. Apply `state:postmortem` once execution completes (success or failure).',
+                `3. Complete the [closure checklist](https://github.com/${owner}/${repo}/blob/main/docs/hitl/closure-checklist.md) before closing.`,
+              ].join('\n'));
+              return;
+            }
+
+            // ─────────────────────────────────────────────
+            // /reject <rationale>
+            // ─────────────────────────────────────────────
+            if (commandText.startsWith('/reject')) {
+              if (!privileged) {
+                await react('-1');
+                await reply(`@${actor} Only authorized collaborators (Approver role) may use \`/reject\`.`);
+                return;
+              }
+              const rationale = commandText.replace('/reject', '').trim();
+              if (!rationale) {
+                await react('-1');
+                await reply(`@${actor} \`/reject\` requires a rationale. Usage: \`/reject <rationale>\``);
+                return;
+              }
+              if (currentState !== 'state:awaiting-human') {
+                await react('-1');
+                await reply(`@${actor} \`/reject\` requires the issue to be in \`state:awaiting-human\`. Current state: \`${currentState}\`.`);
+                return;
+              }
+              await clearStateLabels();
+              await clearDecisionLabels();
+              await addLabel('state:rejected');
+              await addLabel('decision:rejected');
+              await react('+1');
+              await reply([
+                '## Rejected',
+                '',
+                `@${actor} has rejected this intervention request.`,
+                '',
+                `**Rationale:** ${rationale}`,
+                '',
+                `The issue is now in \`state:rejected\`. **The proposed action must not proceed.**`,
+                '',
+                `The requester should document follow-up actions and close this issue after completing the [closure checklist](https://github.com/${owner}/${repo}/blob/main/docs/hitl/closure-checklist.md).`,
+              ].join('\n'));
+              return;
+            }
+
+            // ─────────────────────────────────────────────
+            // /need-info <question>
+            // ─────────────────────────────────────────────
+            if (commandText.startsWith('/need-info')) {
+              if (!privileged) {
+                await react('-1');
+                await reply(`@${actor} Only authorized collaborators (Reviewer role) may use \`/need-info\`.`);
+                return;
+              }
+              const question = commandText.replace('/need-info', '').trim();
+              await addLabel('event:need-info');
+              await react('+1');
+              await reply([
+                '## Information Requested',
+                '',
+                `@${actor} has flagged this issue as requiring additional information.`,
+                '',
+                ...(question ? [`**Question:** ${question}`, ''] : []),
+                'Please update the issue body or reply with the requested information. Remove the `event:need-info` label once satisfied.',
+              ].join('\n'));
+              return;
+            }
+
+            // ─────────────────────────────────────────────
+            // /escalate
+            // ─────────────────────────────────────────────
+            if (commandText.startsWith('/escalate')) {
+              await addLabel('event:escalated');
+              await react('+1');
+              await reply([
+                '## Manually Escalated',
+                '',
+                `@${actor} has manually escalated this issue.`,
+                '',
+                `Current state: \`${currentState}\`. An **Approver** must review this issue urgently.`,
+              ].join('\n'));
+              return;
+            }

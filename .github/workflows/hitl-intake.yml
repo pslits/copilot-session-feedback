@@ -1,0 +1,83 @@
+name: HITL Intake
+
+on:
+  issues:
+    types: [opened, reopened]
+
+jobs:
+  triage:
+    name: Auto-triage intervention request
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'state:intake')
+    permissions:
+      issues: write
+    steps:
+      - name: Triage issue
+        uses: actions/github-script@v7
+        env:
+          TRIAGE_COMMENT: |
+            ## HITL Triage Checklist
+
+            This issue has been received and moved to `state:triage`.
+
+            A **Reviewer** must verify all items below before advancing the issue to `state:awaiting-human`:
+
+            - [ ] Intervention summary is clear and actionable.
+            - [ ] Context and trigger are sufficiently explained.
+            - [ ] Risk tier is correctly assessed (not under-classified).
+            - [ ] Blast radius is adequately scoped.
+            - [ ] At least two alternatives are documented.
+            - [ ] Proposed action is unambiguous.
+            - [ ] Rollback strategy is actionable.
+            - [ ] Deadline/SLA is a future timestamp.
+            - [ ] Required approver role is appropriate for the risk tier.
+
+            Once all items are checked, apply `state:awaiting-human` to gate on an Approver decision.
+
+            ---
+
+            **Available commands** (authorized collaborators only):
+            | Command | Who | Description |
+            |---|---|---|
+            | `/need-info <question>` | Reviewer | Request missing information from the requester. |
+            | `/approve` | Approver | Approve the proposed action. |
+            | `/reject <rationale>` | Approver | Reject the proposed action (rationale required). |
+            | `/escalate` | Anyone | Manually escalate due to urgency. |
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const { owner, repo } = context.repo;
+            const issueNumber = issue.number;
+
+            // Promote to state:triage and remove state:intake
+            await github.rest.issues.addLabels({
+              owner, repo,
+              issue_number: issueNumber,
+              labels: ['state:triage'],
+            });
+            try {
+              await github.rest.issues.removeLabel({
+                owner, repo,
+                issue_number: issueNumber,
+                label: 'state:intake',
+              });
+            } catch (_) { /* ignore if already absent */ }
+
+            // Apply risk label from form selection
+            const body = issue.body || '';
+            const tierMatch = body.match(/\n(low|medium|high|critical)\n/i);
+            if (tierMatch) {
+              const tier = tierMatch[1].toLowerCase();
+              await github.rest.issues.addLabels({
+                owner, repo,
+                issue_number: issueNumber,
+                labels: [`risk:${tier}`],
+              });
+            }
+
+            // Post triage checklist comment
+            await github.rest.issues.createComment({
+              owner, repo,
+              issue_number: issueNumber,
+              body: process.env.TRIAGE_COMMENT,
+            });

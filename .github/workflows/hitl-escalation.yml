@@ -1,0 +1,83 @@
+name: HITL Escalation
+
+# Runs hourly to detect SLA breaches on issues waiting for a human decision.
+# Can also be triggered manually for immediate checks.
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sla-check:
+    name: Check for SLA breaches
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Detect and escalate breached issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            // Fetch all open issues awaiting a human decision
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'state:awaiting-human',
+              per_page: 100,
+            });
+
+            const now = new Date();
+
+            for (const issue of issues) {
+              const issueLabels = issue.labels.map(l => l.name);
+
+              // Skip issues that are already escalated
+              if (issueLabels.includes('event:escalated')) continue;
+
+              // Extract deadline from issue body (ISO 8601 format from the form)
+              const body = issue.body || '';
+              // Matches "YYYY-MM-DDTHH:MMZ" or "YYYY-MM-DDTHH:MM:SSZ"
+              const slaMatch = body.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)/);
+              if (!slaMatch) continue;
+
+              const deadline = new Date(slaMatch[1]);
+              if (isNaN(deadline.getTime())) continue;
+
+              if (now > deadline) {
+                // Mark as escalated
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  labels: ['event:escalated'],
+                });
+
+                const overdueMins = Math.round((now - deadline) / 60000);
+                const overdueText = overdueMins >= 1440
+                  ? `${Math.round(overdueMins / 1440)} day(s)`
+                  : overdueMins >= 60
+                    ? `${Math.round(overdueMins / 60)} hour(s)`
+                    : `${overdueMins} minute(s)`;
+
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  body: [
+                  '## SLA Breach — Automatic Escalation',
+                  '',
+                  `This intervention request has exceeded its stated deadline of \`${slaMatch[1]}\` by **${overdueText}**.`,
+                  '',
+                  'The `event:escalated` label has been applied automatically. An **Approver** must action this issue immediately.',
+                  '',
+                  'If this escalation is a false positive (e.g. deadline was extended), remove the `event:escalated` label and update the issue body with the new SLA.',
+                ].join('\n'),
+                });
+              }
+            }
+
+            core.info(`SLA check complete. Evaluated ${issues.length} issue(s).`);
