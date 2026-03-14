@@ -1,7 +1,7 @@
 # Plan: File Header Conventions
 
 Date: 2026-03-14
-Status: Awaiting approval
+Status: Implemented
 Author: planner
 
 ## Objective
@@ -25,7 +25,7 @@ All other generated files already conform; no changes needed to them.
 Precondition: `copilot-instructions.md` is the only governance document; no
 existing header rules exist.
 
-- [ ] Step 1 — Append a "File Header Conventions" section to
+- [x] Step 1 — Append a "File Header Conventions" section to
   `.github/copilot-instructions.md` covering five file types:
   workflows, shell scripts, PowerShell scripts, Markdown docs,
   and agent/skill/prompt frontmatter files.
@@ -39,7 +39,7 @@ Phase A done when: the new section is saved and parseable.
 ### Phase B — Retrofit the deviant file
 Precondition: Phase A complete; conventions are documented.
 
-- [ ] Step 1 — Add a 2-line description comment directly below `name:` in
+- [x] Step 1 — Add a 2-line description comment directly below `name:` in
   `.github/workflows/hitl-intake.yml` (after line 1), matching the pattern
   used by `hitl-gate.yml`, `hitl-escalation.yml`, etc.
   Success: `hitl-intake.yml` lines 1–4 contain name + comment; no functional
