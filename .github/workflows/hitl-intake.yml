@@ -1,5 +1,7 @@
 name: HITL Intake
 
+# Fires when an issue is opened or reopened; auto-triages issues
+# that carry state:intake and promotes them to state:triage.
 on:
   issues:
     types: [opened, reopened]
