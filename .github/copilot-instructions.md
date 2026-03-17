@@ -45,6 +45,83 @@ Prefixing with ticket IDs (e.g., `ABC-123: ...`) is optional—use it when your 
 
 When in doubt, write a short, descriptive header and a body that explains the why, not only the what.
 
+### AI-Assisted Commits
+
+If a commit was significantly produced with GitHub Copilot, add a trailer:
+
+```
+Co-Authored-By: GitHub Copilot <copilot@github.com>
+```
+
+This goes in the footer section, after any `Fixes #` or `Refs #` lines.
+
+---
+## File Header Conventions
+
+Every file type in this repo follows a specific header pattern. Apply these rules
+when creating new files or reviewing generated output.
+
+### GitHub Actions Workflows (`.github/workflows/*.yml`)
+
+Start with `name:`, immediately followed by a one- or two-line comment that states
+the trigger event and the workflow's purpose. No other preamble.
+
+```yaml
+name: HITL Escalation
+
+# Runs hourly to detect SLA breaches on issues waiting for a human decision.
+# Can also be triggered manually for immediate checks.
+on:
+```
+
+### Shell Scripts (`.github/scripts/*.sh`)
+
+Start with the shebang, then a comment block containing: filename and one-sentence
+description, blank comment, Usage section, blank comment, Requirements line.
+
+```bash
+#!/usr/bin/env bash
+# sync-labels.sh — create or update all HITL labels defined in docs/hitl/labels.md.
+#
+# Usage:
+#   ./.github/scripts/sync-labels.sh [--repo OWNER/REPO] [--delete-unlisted]
+#
+# Requirements: gh CLI authenticated (gh auth login).
+```
+
+### PowerShell Scripts (`.github/scripts/*.ps1`)
+
+Same structure as shell scripts but without a shebang. First line is
+`# filename — description`.
+
+```powershell
+# sync-labels.ps1 — create or update all HITL labels defined in docs/hitl/labels.md.
+#
+# Usage:
+#   .\..\scripts\sync-labels.ps1 [-Repo OWNER/REPO] [-DeleteUnlisted] [-DryRun]
+#
+# Requirements: gh CLI authenticated (gh auth login).
+```
+
+### Markdown Documents (`docs/**/*.md`, `sessions/**/*.md`)
+
+Start with an H1 title (`#`), then a single plain-text sentence describing the
+document's purpose. No frontmatter, no metadata block.
+
+```markdown
+# HITL Operator Runbook
+
+This runbook is the primary reference for anyone involved in operating the
+Human-in-the-Loop (HITL) intervention workflow.
+```
+
+### Agent, Skill, and Prompt Files (`*.agent.md`, `*.prompt.md`, `SKILL.md`)
+
+Use YAML frontmatter with at minimum `name` and `description`. The `description`
+field must be a single string that is rich enough for tool/agent routing (include
+trigger phrases where relevant). No additional comment header outside the frontmatter.
+
+```yaml
 ---
 
 ## File Header Conventions
