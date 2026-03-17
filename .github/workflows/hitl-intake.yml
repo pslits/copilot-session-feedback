@@ -2,7 +2,7 @@ name: HITL Intake
 
 # Processes new HITL issues on open/reopen: auto-triages into state:triage,
 # extracts risk tier from the issue form, and posts the triage checklist.
-=======
+# =======
 # Fires when an issue is opened or reopened; auto-triages issues
 # that carry state:intake and promotes them to state:triage.
 on:
