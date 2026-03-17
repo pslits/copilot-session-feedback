@@ -123,6 +123,64 @@ trigger phrases where relevant). No additional comment header outside the frontm
 
 ```yaml
 ---
+
+## File Header Conventions
+
+Every file in this repository must begin with a header that declares its purpose. Apply the rule for the relevant file type below.
+
+### GitHub Actions Workflows (`.github/workflows/*.yml`)
+
+After `name: <Title>`, leave one blank line, then add one or more `#` comment lines describing what the workflow does and when it runs. The `on:` key follows immediately after the comment block.
+
+```yaml
+name: HITL Gate
+
+# Processes slash-commands posted as issue comments.
+# Only runs on issues (not pull requests) that carry a state:* label.
+on:
+  issue_comment:
+    types: [created]
+```
+
+### Shell Scripts (`*.sh`)
+
+Start with the `#!/usr/bin/env bash` shebang, followed immediately by a `# <filename> — <one-sentence description>` comment.
+
+```bash
+#!/usr/bin/env bash
+# sync-labels.sh — create or update all HITL labels defined in docs/hitl/labels.md.
+```
+
+### PowerShell Scripts (`*.ps1`)
+
+Start with a `# <filename> — <one-sentence description>` comment (no shebang required).
+
+```powershell
+# sync-labels.ps1 — create or update all HITL labels defined in docs/hitl/labels.md.
+```
+
+### Markdown Documents (`*.md`)
+
+Start with a top-level ATX heading (`# Title`) as the very first line.
+
+```markdown
+# HITL Label Taxonomy
+```
+
+### Agent, Skill, and Prompt Frontmatter Files (`.agent.md`, `SKILL.md`, `.prompt.md`)
+
+Begin with a YAML frontmatter block (`---`) containing at minimum `name` and `description` fields.
+
+```yaml
+---
+name: planner
+description: Produces a verified, human-approved implementation plan using the
+  Planning, Reflection, Goal Setting, and Human-in-the-Loop patterns.
+---
+```
+
+---
+=======
 name: planner
 description: Produces a verified, human-approved implementation plan ...
 tools: [search, read, edit, vscode]
