@@ -142,13 +142,13 @@ on:
     types: [created]
 ```
 
-### Shell Scripts (`*.sh`)
+### Python Scripts (`*.py`)
 
-Start with the `#!/usr/bin/env bash` shebang, followed immediately by a `# <filename> — <one-sentence description>` comment.
+Start with the `#!/usr/bin/env python3` shebang, followed immediately by a `# <filename> — <one-sentence description>` comment.
 
-```bash
-#!/usr/bin/env bash
-# sync-labels.sh — create or update all HITL labels defined in docs/hitl/labels.md.
+```python
+#!/usr/bin/env python3
+# sync-labels.py — create or update all HITL labels defined in docs/hitl/labels.md.
 ```
 
 ### PowerShell Scripts (`*.ps1`)
@@ -180,30 +180,18 @@ description: Produces a verified, human-approved implementation plan using the
 ```
 
 ---
-=======
-name: planner
-description: Produces a verified, human-approved implementation plan ...
-tools: [search, read, edit, vscode]
----
-```
 
-### GitHub Issue Templates (`.github/ISSUE_TEMPLATE/*.yml`)
+## Knowledge Artifact Size Budgets
 
-Use the GitHub-parsed `name` and `description` fields as the header — no additional
-comment block. Do not add YAML comments above these fields.
+Rule: Check any knowledge artifact's line count against the caps below before writing; if it
+would exceed the cap, apply the overflow action instead of truncating.
+Reason: Oversized instruction files silently drop later rules as the context window fills —
+splitting by domain is cheaper than debugging forgotten rules.
 
-```yaml
-name: HITL Intervention Request
-description: Request a human-in-the-loop intervention gate for an agentic or automated action.
-```
-
-### Rules (apply to all file types)
-
-- Never add "auto-generated — do not edit" notices. All files in this repo are
-  meant to be maintained.
-- Never add author, date, or version metadata to file headers. Git history is
-  the authoritative record.
-- Keep headers minimal: only what a reader needs to understand the file's purpose
-  and how to use it before opening it fully.
-
----
+| Surface | Hard cap | If exceeded |
+|---------|----------|-------------|
+| `copilot-instructions.md` | 200 lines | Split domain-specific rules into `*.instructions.md` with `applyTo` |
+| `*.instructions.md` | 100 lines per file | Create a second scoped file for the same domain |
+| `SKILL.md` | 500 lines | Split into core `SKILL.md` + bundled reference documents in `references/` |
+| Hook `additionalContext` | 200 tokens | Select only the 3–5 highest-priority rules; summarise to fit |
+| `*.prompt.md` body | 150 lines | Extract reusable sections into a skill reference |

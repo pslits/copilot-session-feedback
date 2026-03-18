@@ -1,0 +1,20 @@
+{
+    "protected_files": [
+        ".github/copilot-instructions.md",
+        ".github/hooks",
+        ".env",
+        "package.json"
+    ],
+    "dangerous_terminal": [
+        "rm -rf",
+        "git push --force",
+        "DROP TABLE",
+        "Remove-Item -Recurse"
+    ],
+    "credential_access": [
+        ".env",
+        "secrets",
+        "token",
+        "password"
+    ]
+}

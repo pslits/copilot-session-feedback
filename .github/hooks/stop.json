@@ -1,0 +1,10 @@
+{
+    "hooks": {
+        "Stop": [
+            {
+                "type": "command",
+                "command": "python .github/hooks/stop.py"
+            }
+        ]
+    }
+}

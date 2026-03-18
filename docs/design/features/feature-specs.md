@@ -29,7 +29,7 @@ The guide ([copilot-session-feedback-guide.md](../../../.github/docs/copilot-ses
 | Dimension | Decision | Pattern Rationale |
 |-----------|----------|------------------|
 | **Hook event** | `Stop` | Lifecycle Callbacks — fires at session end, broadest capture window |
-| **Script language** | Bash (`.sh`) | Tool Use — shell tool with defined schema; cross-platform via `#!/usr/bin/env bash` |
+| **Script language** | Python (`.py`) | Tool Use — script with defined schema; cross-platform via `#!/usr/bin/env python3` and stdlib only (`json`, `shutil`, `pathlib`) |
 | **Stdin fields consumed** | `session_id`, `transcript_path`, `stop_hook_active` | Tool Use — strict input schema |
 | **Side effects produced** | Copy transcript to `sessions/YYYY-MM-DD/<session_id>/transcript.json` | Tool Use — defined output |
 | **Loop guard** | `stop_hook_active` env-var check at line 1 | Exception Handling — prevents the most common hook failure (infinite Stop loop) |
@@ -48,7 +48,7 @@ The guide ([copilot-session-feedback-guide.md](../../../.github/docs/copilot-ses
 7. Exit 0
 ```
 
-**Guide's role:** Section 9 troubleshooting table provides the concrete `stop_hook_active` env-var name and the `jq` stdin-parsing idiom. Section 6c provides the destination path convention `sessions/YYYY-MM-DD/`.
+**Guide's role:** Section 9 troubleshooting table provides the concrete `stop_hook_active` env-var name. The stdin payload is parsed with `json.loads(sys.stdin.read())` (Python stdlib). Section 6c provides the destination path convention `sessions/YYYY-MM-DD/`.
 
 **Success criterion:** Running the script with a sample stdin JSON produces a correctly structured `sessions/YYYY-MM-DD/` directory and exits `0` within 500ms on a cold filesystem.
 
@@ -178,7 +178,7 @@ New reusable workflows found this session. Numbered list.
 
 #### Governing Patterns and Structural Constraints
 
-- **Tool Use (Gulli #5):** SessionStart must invoke shell tools (e.g. `git rev-parse`, `node -p require('./package.json').version`) to retrieve live metadata — project name, current branch, version. The pattern requires a strict tool schema: inputs are implicit (the workspace filesystem), outputs are the `additionalContext` JSON payload. The tools invoked must be safe (read-only shell commands).
+- **Tool Use (Gulli #5):** SessionStart must invoke read-only subprocess calls (e.g. `git rev-parse`, parsing `package.json` with Python's `json` module) to retrieve live metadata — project name, current branch, version. The pattern requires a strict tool schema: inputs are implicit (the workspace filesystem), outputs are the `additionalContext` JSON payload. The tools invoked must be safe (read-only, no shell expansion).
 - **Lifecycle Callbacks / AgentOps (A&B Ch. 10):** This is the orientation hook — it fires once at session start. The pattern mandates the event fires exactly once per session and that the `additionalContext` payload follows the consistent event schema. The hook should provide orientation data, not instructions — instructions live in `copilot-instructions.md`.
 
 #### Design Specification
@@ -186,7 +186,7 @@ New reusable workflows found this session. Numbered list.
 | Dimension | Decision | Pattern Rationale |
 |-----------|----------|------------------|
 | **Hook event** | `SessionStart` | Lifecycle Callbacks — single orientation event at session open |
-| **Tools invoked** | `git rev-parse --abbrev-ref HEAD`, `git log -1 --format=%H`, `node -p` or `cat package.json \| jq .version` | Tool Use — read-only shell tools with defined outputs |
+| **Tools invoked** | `subprocess.run(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])`, `subprocess.run(['git', 'log', '-1', '--format=%H'])`, `json.load(open('package.json'))['version']` | Tool Use — read-only subprocess calls and stdlib JSON; no shell expansion |
 | **`additionalContext` fields** | `project`, `branch`, `commit_sha`, `version`, `timestamp` | Tool Use — strict output schema |
 | **Token budget** | ≤ 100 tokens (5 key-value pairs) | Resource-Aware — orientation, not instruction; minimal footprint |
 | **Failure mode** | Any tool failure → omit that field, continue (no exit 2) | Exception Handling — graceful degradation; partial metadata is better than no session start |
@@ -733,7 +733,7 @@ tools: [read_file, write_file, edit_file, list_dir, run_in_terminal]
 | Dimension | Decision | Pattern Rationale |
 |-----------|----------|------------------|
 | **Hook event** | `PostToolUse` (filtered by `tool_name == "write_file" OR "edit_file"`) | Lifecycle Callbacks — fires after file writes only; filtering prevents running on every tool call |
-| **Tools invoked** | Project formatter (e.g. `npx prettier --write <file>`, `black <file>`, or `dotnet format`) | Tool Use — read the file extension to select the correct formatter |
+| **Tools invoked** | `subprocess.run(['npx', 'prettier', '--write', file])`, `subprocess.run(['black', file])`, or `subprocess.run(['dotnet', 'format', file])` — selected by file extension | Tool Use — formatters invoked as subprocesses from Python; no shell expansion |
 | **Formatter selection** | Derive from file extension; load formatter config from existing project config files | Tool Use — strict tool schema: input = file path, output = formatted file |
 | **Execution budget** | < 500ms (async formatter invocation with timeout) | Lifecycle Callbacks — fires on every file write; must not add perceptible latency |
 | **Formatter failure handling** | Non-zero formatter exit → log to stderr, exit `0` (continue session) | Exception Handling — formatting failure is non-fatal; the file is still valid code |

@@ -1,0 +1,10 @@
+{
+    "hooks": {
+        "PreToolUse": [
+            {
+                "type": "command",
+                "command": "python .github/hooks/pre-tool-use.py"
+            }
+        ]
+    }
+}
