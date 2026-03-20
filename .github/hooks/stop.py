@@ -7,6 +7,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Allow sibling hook modules to be imported when running as a standalone script.
+sys.path.insert(0, str(Path(__file__).parent))
+from _trace import read_trace_id  # noqa: E402
+
 
 def main() -> None:
     # Read stdin payload first — loop guard field is in the JSON.
@@ -60,6 +64,7 @@ def main() -> None:
     # Write metadata.
     metadata = {
         "session_id": session_id,
+        "trace_id": read_trace_id(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "size_bytes": dest_transcript.stat().st_size,
         "source": transcript_path,

@@ -9,6 +9,7 @@ from helpers import run_hook
 
 _INSTRUCTIONS = Path(".github") / "copilot-instructions.md"
 _MARKER = "# PRIORITY: HIGH"
+_TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
 
 
 def _write_instructions(tmp_path: Path, lines: list[str]) -> None:
@@ -34,6 +35,32 @@ class TestPostCompactOutput:
     def test_empty_stdin_still_exits_zero(self, tmp_path):
         result = run_hook("post-compact.py", "", tmp_path)
         assert result.returncode == 0
+
+    def test_context_contains_trace_id(self, tmp_path):
+        """additionalContext must include a trace_id line for session correlation."""
+        result = run_hook("post-compact.py", "{}", tmp_path)
+        ctx = json.loads(result.stdout)["additionalContext"]
+        assert "trace_id:" in ctx
+
+    def test_context_trace_id_from_file(self, tmp_path):
+        """When sessions/.current_trace_id exists, its value must appear in additionalContext."""
+        trace_id = "fedcba98-7654-4321-abcd-ef0123456789"
+        trace_file = tmp_path / _TRACE_ID_PATH
+        trace_file.parent.mkdir(parents=True, exist_ok=True)
+        trace_file.write_text(trace_id)
+        result = run_hook("post-compact.py", "{}", tmp_path)
+        ctx = json.loads(result.stdout)["additionalContext"]
+        assert trace_id in ctx
+
+    def test_context_trace_id_fallback_when_no_file(self, tmp_path):
+        """Without sessions/.current_trace_id the hook must not crash; trace_id starts 'unknown-'."""
+        result = run_hook("post-compact.py", "{}", tmp_path)
+        ctx = json.loads(result.stdout)["additionalContext"]
+        for line in ctx.splitlines():
+            if line.startswith("trace_id:"):
+                assert line.split(":", 1)[1].strip().startswith("unknown-")
+                return
+        pytest.fail("trace_id line not found in additionalContext")
 
 
 class TestPostCompactFallback:

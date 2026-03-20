@@ -60,6 +60,29 @@ class TestStopHookHappyPath:
         assert meta["session_id"] == "abc123"
         assert "timestamp" in meta
         assert meta["size_bytes"] > 0
+        assert "trace_id" in meta, "metadata.json must contain trace_id field"
+
+    def test_metadata_trace_id_from_file(self, tmp_path):
+        """When sessions/.current_trace_id exists, metadata.json must use its value."""
+        trace_id = "aaaabbbb-cccc-4ddd-eeee-ffffffffffff"
+        trace_file = tmp_path / "sessions" / ".current_trace_id"
+        trace_file.parent.mkdir(parents=True, exist_ok=True)
+        trace_file.write_text(trace_id)
+        run_hook("stop.py", self._payload(tmp_path), tmp_path)
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        meta = json.loads(
+            (tmp_path / "sessions" / date_str / "abc123" / "metadata.json").read_text()
+        )
+        assert meta["trace_id"] == trace_id
+
+    def test_metadata_trace_id_fallback_when_no_file(self, tmp_path):
+        """Without sessions/.current_trace_id the hook must not crash; trace_id starts 'unknown-'."""
+        run_hook("stop.py", self._payload(tmp_path), tmp_path)
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        meta = json.loads(
+            (tmp_path / "sessions" / date_str / "abc123" / "metadata.json").read_text()
+        )
+        assert meta["trace_id"].startswith("unknown-")
 
     def test_accepts_sessionid_camelcase(self, tmp_path):
         """Hook must accept both ``sessionId`` (VS Code) and ``session_id``."""

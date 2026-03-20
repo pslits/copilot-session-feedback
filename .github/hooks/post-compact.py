@@ -5,6 +5,10 @@ import json
 import sys
 from pathlib import Path
 
+# Allow sibling hook modules to be imported when running as a standalone script.
+sys.path.insert(0, str(Path(__file__).parent))
+from _trace import read_trace_id  # noqa: E402
+
 INSTRUCTIONS_PATH = Path(".github/copilot-instructions.md")
 PRIORITY_MARKER = "# PRIORITY: HIGH"
 MAX_CHARS = 800  # Conservative ceiling ≈ 200 tokens
@@ -53,6 +57,10 @@ def main() -> None:
 
     priority_lines = extract_priority_lines(INSTRUCTIONS_PATH)
     additional_context = build_context(priority_lines)
+
+    # Append trace ID so the agent can correlate this compaction event to its session
+    trace_id = read_trace_id()
+    additional_context = f"{additional_context}\ntrace_id: {trace_id}"
 
     output = {"additionalContext": additional_context}
     print(json.dumps(output))

@@ -9,6 +9,7 @@ import pytest
 from helpers import run_hook
 
 _JSONL_PATH = Path("sessions") / "metrics" / "sessions.jsonl"
+_TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
 
 
 def _read_records(tmp_path: Path) -> list[dict]:
@@ -36,6 +37,25 @@ class TestSessionEndHappyPath:
         assert r["turn_count"] == 7
         assert r["end_ts"] is not None
         assert r["duration_seconds"] is not None
+        assert "trace_id" in r, "record must contain trace_id field"
+
+    def test_record_trace_id_from_file(self, tmp_path):
+        """When sessions/.current_trace_id exists, its value is used as the record's trace_id."""
+        trace_id = "11111111-2222-4333-a444-555555555555"
+        trace_file = tmp_path / _TRACE_ID_PATH
+        trace_file.parent.mkdir(parents=True, exist_ok=True)
+        trace_file.write_text(trace_id)
+        payload = json.dumps({"session_id": "s1"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert records[0]["trace_id"] == trace_id
+
+    def test_record_trace_id_fallback_when_no_file(self, tmp_path):
+        """Without sessions/.current_trace_id the hook must not crash; trace_id starts 'unknown-'."""
+        payload = json.dumps({"session_id": "s-no-trace"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert records[0]["trace_id"].startswith("unknown-")
 
     def test_end_ts_is_valid_iso_format(self, tmp_path):
         payload = json.dumps({"session_id": "s2"})

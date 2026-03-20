@@ -6,6 +6,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Allow sibling hook modules to be imported when running as a standalone script.
+sys.path.insert(0, str(Path(__file__).parent))
+from _trace import read_trace_id  # noqa: E402
+
 
 def main() -> None:
     # Read the full stdin payload without asserting specific fields
@@ -31,10 +35,11 @@ def main() -> None:
         print(f"pre-compact: could not create {dest_dir}: {exc}", file=sys.stderr)
         sys.exit(2)
 
-    # Write the snapshot — include the raw payload plus a capture timestamp
+    # Write the snapshot — include the raw payload plus capture timestamp and trace ID
     snapshot = {
         "captured_at": f"{timestamp}",
         "session_id": session_id,
+        "trace_id": read_trace_id(),
         "payload": payload,
     }
 

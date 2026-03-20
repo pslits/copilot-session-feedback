@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from helpers import run_hook
+from helpers import UUID4_RE, run_hook
+
+_TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
 
 
 class TestSessionStartOutput:
@@ -21,7 +23,7 @@ class TestSessionStartOutput:
     def test_context_contains_required_keys(self, tmp_path):
         result = run_hook("session-start.py", "{}", tmp_path)
         ctx = json.loads(result.stdout)["additionalContext"]
-        for key in ("project:", "branch:", "commit:", "version:", "session_opened:"):
+        for key in ("project:", "branch:", "commit:", "version:", "session_opened:", "trace_id:"):
             assert key in ctx, f"Missing key '{key}' in additionalContext"
 
     def test_context_within_token_budget(self, tmp_path):
@@ -29,6 +31,37 @@ class TestSessionStartOutput:
         result = run_hook("session-start.py", "{}", tmp_path)
         ctx = json.loads(result.stdout)["additionalContext"]
         assert len(ctx) <= 400
+
+    def test_trace_id_is_uuid4(self, tmp_path):
+        """trace_id value in additionalContext must be a valid UUID v4."""
+        result = run_hook("session-start.py", "{}", tmp_path)
+        ctx = json.loads(result.stdout)["additionalContext"]
+        for line in ctx.splitlines():
+            if line.startswith("trace_id: "):
+                trace_id = line.split(": ", 1)[1].strip()
+                assert UUID4_RE.match(trace_id), f"trace_id '{trace_id}' is not a UUID v4"
+                return
+        pytest.fail("trace_id line not found in additionalContext")
+
+    def test_trace_id_file_created(self, tmp_path):
+        """session-start.py must persist the trace ID to sessions/.current_trace_id."""
+        run_hook("session-start.py", "{}", tmp_path)
+        trace_id_file = tmp_path / _TRACE_ID_PATH
+        assert trace_id_file.exists(), "sessions/.current_trace_id was not created"
+        content = trace_id_file.read_text().strip()
+        assert UUID4_RE.match(content), f"persisted trace ID '{content}' is not a UUID v4"
+
+    def test_trace_id_matches_context(self, tmp_path):
+        """The trace ID in additionalContext must equal the one persisted to disk."""
+        result = run_hook("session-start.py", "{}", tmp_path)
+        ctx = json.loads(result.stdout)["additionalContext"]
+        ctx_trace_id = None
+        for line in ctx.splitlines():
+            if line.startswith("trace_id: "):
+                ctx_trace_id = line.split(": ", 1)[1].strip()
+        assert ctx_trace_id is not None
+        file_trace_id = (tmp_path / _TRACE_ID_PATH).read_text().strip()
+        assert ctx_trace_id == file_trace_id
 
 
 class TestSessionStartGracefulDegradation:
