@@ -1,0 +1,10 @@
+{
+    "hooks": {
+        "PostCompact": [
+            {
+                "type": "command",
+                "command": "python .github/hooks/post-compact.py"
+            }
+        ]
+    }
+}

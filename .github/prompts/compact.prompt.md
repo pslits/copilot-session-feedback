@@ -1,7 +1,7 @@
 ---
 name: compact
 description: Capture session memory into five compact sections
-tools: [readFile, listDirectory]
+tools: [read, search]
 ---
 
 Create a compact session summary that preserves the session's reusable knowledge.

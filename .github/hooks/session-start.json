@@ -1,0 +1,10 @@
+{
+    "hooks": {
+        "SessionStart": [
+            {
+                "type": "command",
+                "command": "python .github/hooks/session-start.py"
+            }
+        ]
+    }
+}
