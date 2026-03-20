@@ -11,6 +11,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Allow sibling hook modules to be imported when running as a standalone script.
+sys.path.insert(0, str(Path(__file__).parent))
+from _trace import read_trace_id  # noqa: E402
+
 
 def main() -> None:
     try:
@@ -35,8 +39,11 @@ def main() -> None:
         except ValueError:
             pass  # Non-fatal: log null duration rather than blocking.
 
+    trace_id = read_trace_id()
+
     record = {
         "session_id": session_id or None,
+        "trace_id": trace_id,
         "start_ts": start_ts or None,
         "end_ts": end_ts,
         "duration_seconds": duration_seconds,

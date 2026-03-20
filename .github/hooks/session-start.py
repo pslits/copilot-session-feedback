@@ -5,7 +5,11 @@ import json
 import os
 import subprocess
 import sys
+import uuid
 from datetime import datetime, timezone
+from pathlib import Path
+
+TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
 
 
 def run_git(args: list[str]) -> str:
@@ -31,6 +35,25 @@ def read_package_version() -> str:
         return "n/a"
 
 
+def generate_trace_id() -> str:
+    """Generate a UUID v4 trace ID for this session."""
+    return str(uuid.uuid4())
+
+
+def persist_trace_id(trace_id: str) -> None:
+    """Write the trace ID to disk so all downstream hooks can read it."""
+    try:
+        TRACE_ID_PATH.parent.mkdir(parents=True, exist_ok=True)
+        TRACE_ID_PATH.write_text(trace_id, encoding="utf-8")
+    except OSError as exc:
+        print(
+            f"session-start.py: could not persist trace ID: {exc}. "
+            "Downstream hooks will fall back to a synthetic 'unknown-<timestamp>' ID; "
+            "trace correlation for this session will be unavailable.",
+            file=sys.stderr,
+        )
+
+
 def main() -> None:
     # Read stdin (ignore contents — SessionStart payload may be empty)
     try:
@@ -38,6 +61,10 @@ def main() -> None:
         _ = json.loads(raw) if raw.strip() else {}
     except Exception:
         pass  # Graceful degradation: continue even if stdin is malformed
+
+    # Generate and persist the session trace ID — must happen before metadata collection
+    trace_id = generate_trace_id()
+    persist_trace_id(trace_id)
 
     # Collect orientation metadata — each field degrades individually on failure
     project = os.path.basename(os.getcwd())
@@ -53,6 +80,7 @@ def main() -> None:
         f"commit: {commit_sha[:12] if commit_sha != 'unknown' else 'unknown'}",
         f"version: {version}",
         f"session_opened: {timestamp}",
+        f"trace_id: {trace_id}",
     ]
     additional_context = "\n".join(context_lines)
 

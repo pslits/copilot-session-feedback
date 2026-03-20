@@ -1,12 +1,19 @@
 """Shared test helpers for hook regression tests."""
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 # Absolute path to the hooks directory — used by all test modules.
 HOOKS_DIR = Path(__file__).parent.parent / ".github" / "hooks"
+
+# Regex for validating UUID v4 strings — shared across test modules.
+UUID4_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 
 
 def run_hook(

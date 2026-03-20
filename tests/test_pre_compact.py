@@ -9,6 +9,7 @@ import pytest
 from helpers import run_hook
 
 _PRECOMPACT_DIR = Path("sessions") / "precompact"
+_TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
 
 
 class TestPreCompactHappyPath:
@@ -43,6 +44,34 @@ class TestPreCompactHappyPath:
         snapshots = list((tmp_path / _PRECOMPACT_DIR).glob("sess-4-*.json"))
         data = json.loads(snapshots[0].read_text())
         assert data["payload"]["messages"][0]["content"] == "hi"
+
+    def test_snapshot_contains_trace_id(self, tmp_path):
+        """Snapshot must contain a trace_id field for session correlation."""
+        payload = json.dumps({"session_id": "sess-trace"})
+        run_hook("pre-compact.py", payload, tmp_path)
+        snapshots = list((tmp_path / _PRECOMPACT_DIR).glob("sess-trace-*.json"))
+        data = json.loads(snapshots[0].read_text())
+        assert "trace_id" in data, "snapshot must contain trace_id field"
+
+    def test_snapshot_trace_id_from_file(self, tmp_path):
+        """When sessions/.current_trace_id exists, the snapshot must use its value."""
+        trace_id = "12345678-abcd-4ef0-bcde-1234567890ab"
+        trace_file = tmp_path / _TRACE_ID_PATH
+        trace_file.parent.mkdir(parents=True, exist_ok=True)
+        trace_file.write_text(trace_id)
+        payload = json.dumps({"session_id": "sess-t2"})
+        run_hook("pre-compact.py", payload, tmp_path)
+        snapshots = list((tmp_path / _PRECOMPACT_DIR).glob("sess-t2-*.json"))
+        data = json.loads(snapshots[0].read_text())
+        assert data["trace_id"] == trace_id
+
+    def test_snapshot_trace_id_fallback_when_no_file(self, tmp_path):
+        """Without sessions/.current_trace_id the hook must not crash; trace_id starts 'unknown-'."""
+        payload = json.dumps({"session_id": "sess-t3"})
+        run_hook("pre-compact.py", payload, tmp_path)
+        snapshots = list((tmp_path / _PRECOMPACT_DIR).glob("sess-t3-*.json"))
+        data = json.loads(snapshots[0].read_text())
+        assert data["trace_id"].startswith("unknown-")
 
 
 class TestPreCompactEdgeCases:
