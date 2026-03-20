@@ -3,7 +3,8 @@
         "Stop": [
             {
                 "type": "command",
-                "command": "python .github/hooks/stop.py"
+                "command": "python .github/hooks/stop.py",
+                "additionalContext": "End-of-session feedback checklist — answer each before closing:\n1. Did the agent make a correction it has made before? (→ Lens 1, copilot-instructions.md)\n2. Did the agent use a wrong project term? (→ Lens 2, *.instructions.md)\n3. Did you repeat a multi-step action manually? (→ Lens 3, *.prompt.md)\n4. Did a dangerous tool call nearly slip through? (→ Lens 4, hook)\n5. Run /compact to preserve session context?\n6. Any un-actioned observations to add to sessions/feedback-debt.md?"
             }
         ]
     }

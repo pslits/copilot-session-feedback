@@ -1,0 +1,10 @@
+{
+    "hooks": {
+        "SessionEnd": [
+            {
+                "type": "command",
+                "command": "python .github/hooks/session-end.py"
+            }
+        ]
+    }
+}
