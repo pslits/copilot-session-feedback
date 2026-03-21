@@ -1,7 +1,7 @@
 # ADR-0010: Document Why Fixed Procedures Outperform ReAct in This Context
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#18](https://github.com/pslits/copilot-session-feedback/issues/18)
 Decider: @pslits
 Risk Tier: low
@@ -61,11 +61,18 @@ updates), not through per-invocation dynamic reasoning."
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Update ReAct Agent catalogue entry with design rationale | @pslits | 2026-04-03 | Open |
-| Add design rationale comment to @researcher agent file | @pslits | 2026-04-03 | Open |
+| Update ReAct Agent catalogue entry with design rationale | @pslits | 2026-04-03 | Done |
+| Add design rationale comment to @researcher agent file | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Design rationale added to two locations:
+- `patterns-catalogue.md` — ReAct Agent entry now includes a "Design Rationale" blockquote
+  explaining the predictability-vs-adaptability tradeoff, the auditability requirement, and a
+  note acknowledging the nuance for open-ended tasks.
+- `researcher.agent.md` — system prompt now opens with a matching "Design Rationale" blockquote
+  referencing this ADR.
+
+Both changes are documentation-only; no agent behaviour was modified.

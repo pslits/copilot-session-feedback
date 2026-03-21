@@ -310,6 +310,21 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **When to use:** Tasks requiring dynamic, multi-step decision-making where the next action depends on previous observations; debugging or diagnostic tasks; tool-heavy workflows.  
 **Key consideration:** Reasoning steps consume tokens and add latency. Set a maximum number of reason-act iterations to prevent infinite loops.
 
+> **Design Rationale — Why this framework uses fixed procedures instead of ReAct (ref. ADR-0010)**
+>
+> ReAct is more adaptive than fixed-procedure agents but less predictable. In this feedback loop
+> system, predictability is the superior property: each agent run must produce a comparable,
+> reproducible output so that session-over-session improvement can be measured against a stable
+> baseline. ReAct's dynamic reason-act loops introduce output variability that would make that
+> measurement unreliable.
+>
+> Adaptability is achieved through the feedback loop itself — weekly rule updates and structured
+> session analysis — not through per-invocation dynamic reasoning.
+>
+> **Note:** Some tasks (e.g., open-ended codebase research) could genuinely benefit from ReAct's
+> adaptive probing. If you are considering ReAct for such a task, raise an ADR to assess the
+> auditability trade-off before introducing it. See ADR-0010 for the full decision record.
+
 ---
 
 #### Memory-Augmented Agent
