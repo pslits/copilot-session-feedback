@@ -32,6 +32,15 @@ Session → Capture → Analyse → Document → Route → Validate
 - Skill files (`SKILL.md`) with bundled references
 - Hook configurations (JSON lifecycle callbacks)
 
+**Primary Interaction Mode:**
+
+This system is built around **Collaborative Co-piloting** (A&B, Ch. 8) as its foundational interaction
+context. Collaborative Co-piloting is the mode in which developer and agent work simultaneously, with the
+human retaining final authority over every decision. The feedback loop exists *because* the developer
+co-pilots with Copilot every day — the friction, corrections, and vocabulary gaps that feed the flywheel
+are all artefacts of that daily co-piloting experience. The loop is not a general improvement system; it
+is a co-piloting quality improvement system specifically.
+
 **Essential Constraints:**
 1. Must operate within GitHub Copilot's six VS Code extension surfaces — no external infrastructure required
 2. Human review is mandatory before any knowledge is promoted to permanent instructions (guard against encoding bad patterns)
@@ -75,7 +84,7 @@ All five tiers contributed at least one pattern. No tier was found to be entirel
 | **Tier 2 — Advanced** | 2 (Memory Management, Goal Setting) | Learning & Adaptation (subsumed by Flywheel), MCP (no protocol layer needed) |
 | **Tier 3 — Production** | 2 (Exception Handling, HITL) | RAG (no vector store / semantic retrieval) |
 | **Tier 4 — Enterprise** | 3 (Resource-Aware, Guardrails, Evaluation) | A2A (single instance), Reasoning (native to model), Prioritization (implicit in HITL P0–P3 matrix), Exploration (structured, not exploratory) |
-| **Tier 5 — Architectural** | 4 (GenAI Maturity Model, Lifecycle Callbacks, Self-Improvement Flywheel, Instruction Fidelity Auditing) | Hierarchical Orchestrator (pipeline-based, not hierarchical; adds complexity), Agent Router (rule-based routing, not LLM-based), Blackboard (no async collaboration), Parallel Execution Consensus (no multi-verification need), Circuit Breaker (no external service dependency), Secure Agent (covered by Guardrails), Collaborative Co-piloting (general model, not a design choice), ReAct (agents use fixed procedures), Tool & Agent Registry (below 5-agent / 10-skill threshold — see ADR-0012), R⁵ (subsumed), Decision Audit Trail (subsumed), Human Delegates to Agent (subsumed), Single Agent Baseline (implicit in maturity model), Memory-Augmented Agent (merged) |
+| **Tier 5 — Architectural** | 4 (GenAI Maturity Model, Lifecycle Callbacks, Self-Improvement Flywheel, Instruction Fidelity Auditing) | Hierarchical Orchestrator (pipeline-based, not hierarchical; adds complexity), Agent Router (rule-based routing, not LLM-based), Blackboard (no async collaboration), Parallel Execution Consensus (no multi-verification need), Circuit Breaker (no external service dependency), Secure Agent (covered by Guardrails), Collaborative Co-piloting (foundational context — the interaction mode the feedback loop serves; not a pipeline component), ReAct (agents use fixed procedures), Tool & Agent Registry (below 5-agent / 10-skill threshold — see ADR-0012), R⁵ (subsumed), Decision Audit Trail (subsumed), Human Delegates to Agent (subsumed), Single Agent Baseline (implicit in maturity model), Memory-Augmented Agent (merged) |
 
 ### "Lightweight Enough to Use" Conflicts Flagged
 
@@ -249,7 +258,7 @@ Three explicit human gates in the pipeline:
 | Routing | Misclassification — a finding is routed to the wrong integration surface (e.g., a hook-worthy guardrail is written as an instruction that the agent can ignore). | The Mermaid decision tree (Section 5) provides visual routing. The human review gate catches misroutes before commit. Include the routing tree as a conditional instruction. |
 | Reflection | Over-auditing — the `/audit` prompt flags too many "issues," creating audit fatigue. Developer stops running it. | Run audit monthly, not per-session. Set clear action thresholds: only act on rules flagged as "contradicted" or "orphaned." Ignore "redundant" unless the rule count exceeds 50. |
 | Tool Use | Hook script failures cascade silently — a broken hook returns non-zero and the developer doesn't notice. | Exit code contract (0/2/other) with defined semantics. Manual debugging workflow (Section 9). Test hooks independently with sample stdin before deployment. |
-| Multi-Agent | Handoff context loss — the `@researcher` agent's findings are summarised too aggressively during handoff to `@planner`, losing critical file references. | VS Code's handoff mechanism preserves full accumulated context. Keep agent scopes narrow so context stays focused. Researcher output template mandates exact file:line references. |
+| Multi-Agent | Handoff context loss — the `@researcher` agent's findings are summarised too aggressively during handoff to `@planner`, losing critical file references. | VS Code's handoff mechanism preserves full accumulated context. Keep agent scopes narrow so context stays focused. Researcher output template mandates exact file:line references. See fallback table below. |
 | Memory Management | Knowledge base grows unbounded — 60+ rules in `copilot-instructions.md` causes the agent to "forget" later rules as the context window fills. | Enforce token budget rules from the guide: < 200 lines for global instructions, < 100 lines per conditional instruction. Split aggressively into scoped `*.instructions.md` files. Prune monthly via `/audit`. |
 | Goal Setting & Monitoring | Vanity metrics — developer tracks "number of rules written" instead of "corrections per session." More rules ≠ better. | The guide explicitly calls "rule count" an anti-metric. Focus on corrections-per-session (trending ↓) and stale-rule-count (should be 0). |
 | Exception Handling | Stop-hook infinite loop — the single most common hooks mistake (documented in Section 9). Forgetting `stop_hook_active` guard creates an unbreakable loop. | Every Stop hook template includes the guard. The security gate skill/instruction must mandate this pattern. Add a `PreToolUse` hook that validates Stop hook scripts for the guard. |
@@ -261,6 +270,18 @@ Three explicit human gates in the pipeline:
 | Lifecycle Callbacks | Hook overhead — hooking every lifecycle event adds latency to every tool call, slowing the agent noticeably. | Start with only Stop + PostToolUse hooks (Week 2). Add SessionStart, PreCompact, PostCompact in Week 4. Never hook events with no justified use case. Keep scripts < 500ms execution time. |
 | Self-Improvement Flywheel | Encoding bad patterns — the flywheel amplifies mistakes if bad corrections are formalised into rules. A wrong rule compounds across many sessions. | Human review gate is the primary defence. The rule writing checklist requires reasoning ("Reason: ..."). The `/audit` prompt detects contradicted rules. The 28-day TTL on Copilot Memory provides automatic expiry for unvalidated patterns. |
 | Instruction Fidelity Auditing | Audit becomes bureaucratic overhead — running `/audit` monthly and reviewing the output feels like a compliance task. | Frame the audit as a deletion exercise, not a review exercise. The goal is to remove rules, not to validate them. A smaller, accurate rule set is the reward. Run it once monthly; skip if the knowledge base has < 15 rules. |
+
+### RPI Chain Fallback Procedures
+
+When an RPI chain agent fails to produce its required handoff artifact, use the table below to
+recover. Each fallback is a human-actioned last resort — not a workflow shortcut. Prefer
+re-invoking the failing agent with a narrower scope before falling back.
+
+| Failure mode | Symptom | Fallback procedure |
+|---|---|---|
+| `@researcher` produces no findings | The Findings table is empty or the agent stops without output | Apply the four diagnostic lenses manually using `.github/instructions/feedback-lenses.instructions.md` directly on the session summary. Produce the findings table by hand and hand it to `@planner` as inline context. |
+| `@planner` produces no phased plan | The agent completes without saving a plan file under `sessions/plans/` | Use the `@researcher` findings table as the specification. Invoke `@implementer` directly with that table as context, accepting reduced structure. Document the deviation in the session notes. |
+| `@implementer` stalls mid-plan | The agent stops partway through, leaving some steps incomplete | Note the last completed step number from the TODO list. Re-invoke `@implementer` with the original plan file path and the instruction: "Resume from step N — all prior steps are complete." Verify preconditions for step N before resuming. |
 
 ---
 
