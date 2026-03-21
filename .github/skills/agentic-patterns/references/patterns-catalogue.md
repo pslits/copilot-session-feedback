@@ -72,6 +72,18 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **When to use:** The agent needs to remember user preferences, past decisions, or domain knowledge beyond a single session.  
 **Key consideration:** Retrieval quality determines output quality. Invest in chunking and embedding strategies.
 
+**Adaptation mechanism (Ch. 3):** This framework uses **in-context learning** as its adaptation
+mechanism — rules are injected into `copilot-instructions.md` and re-injected via the PostCompact
+hook at inference time. This is a deliberate choice on the Ch. 3 spectrum (in-context learning →
+RAG → fine-tuning) given the VS Code-native, single-developer constraint. RAG and fine-tuning are
+explicitly excluded: RAG requires an external retrieval pipeline that is disproportionate for this
+use case; fine-tuning is unavailable in the GitHub Copilot VS Code integration.  
+**Context-window ceiling:** In-context learning is bounded by the model's context window. When
+`copilot-instructions.md` grows beyond approximately 3 000 tokens, later rules are silently dropped
+or ignored by the model. This is the known upper bound of the approach. The PostCompact hook
+provides a partial mitigation by re-injecting rules tagged `# PRIORITY: HIGH` after context
+compression, but it does not remove the ceiling — it only delays when the ceiling is reached.
+
 ---
 
 ### 9. Learning and Adaptation
