@@ -1,4 +1,7 @@
-sessions
+sessions/*
+!sessions/metrics/
+sessions/metrics/*
+!sessions/metrics/sessions.jsonl
 .pytest_cache
 __pycache__
 *.pyc
