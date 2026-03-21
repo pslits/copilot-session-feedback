@@ -337,6 +337,16 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **When to use:** All production agentic systems. Non-negotiable for debugging, compliance, cost management, and performance optimisation.  
 **Key consideration:** Callback overhead adds latency. Use async emission where possible. Define a consistent event schema across all agents from day one.
 
+**ADK ↔ VS Code hook equivalence** *(verified against ADK 1.x — review if ADK major version changes)*
+
+| ADK Event | VS Code Hook | Schema notes |
+|---|---|---|
+| `on_agent_start` | `SessionStart` | ADK includes `trace_id`; VS Code does not (see ADR-0011) |
+| `on_tool_call` | `PreToolUse` | ADK has typed tool schema; VS Code passes stdin JSON |
+| `on_tool_response` | `PostToolUse` | Similar structure; both carry tool name and output |
+| `on_agent_end` | `SessionEnd` / `Stop` | VS Code has two variants (graceful vs. interrupted); ADK has one |
+| *(no equivalent)* | `PreCompact` / `PostCompact` | VS Code-specific; context compression has no ADK analogue |
+
 ---
 
 ### Advanced Adaptation *(Ch. 11)*
