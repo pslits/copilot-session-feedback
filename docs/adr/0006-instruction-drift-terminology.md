@@ -1,7 +1,7 @@
 # ADR-0006: Introduce "Instruction Drift" Terminology Across Framework
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#14](https://github.com/pslits/copilot-session-feedback/issues/14)
 Decider: @pslits
 Risk Tier: low
@@ -56,12 +56,15 @@ appropriate points.
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add "instruction drift" definition to rule-writing.instructions.md | @pslits | 2026-04-03 | Open |
-| Add "instruction drift" context to /audit prompt | @pslits | 2026-04-03 | Open |
+| Add "instruction drift" definition to rule-writing.instructions.md | @pslits | 2026-04-03 | Done |
+| Add "instruction drift" context to /audit prompt | @pslits | 2026-04-03 | Done |
 | Cross-reference ADR-0006 in Instruction Fidelity Auditing catalogue entry | @pslits | 2026-04-03 | Open |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+The term "instruction drift" and its definition (rules correct at T become incorrect by T+N)
+were inserted as a context paragraph at the top of `rule-writing.instructions.md` and as an
+opening description in `audit.prompt.md`. The monthly cadence is now explicitly named a
+drift-detection cycle in both artifacts. ADR status updated to Accepted.

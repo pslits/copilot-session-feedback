@@ -1,20 +1,68 @@
 {
     "protected_files": [
-        ".github/copilot-instructions.md",
-        ".github/hooks",
-        ".env",
-        "package.json"
+        {
+            "pattern": ".github/copilot-instructions.md",
+            "reason": "This file contains the workspace-wide Copilot instruction set. Deleting it removes all agent guidance.",
+            "next": "Edit the file content instead of deleting it, or delete it manually in your terminal if you are certain."
+        },
+        {
+            "pattern": ".github/hooks",
+            "reason": "The hooks directory contains the security gate and automation scripts for this workspace.",
+            "next": "Modify individual hook files through an editor, or delete manually in your terminal if you are certain."
+        },
+        {
+            "pattern": ".env",
+            "reason": "This file contains environment variables that may include credentials or secrets.",
+            "next": "Edit the file content rather than deleting it, or delete manually in your terminal if you are certain."
+        },
+        {
+            "pattern": "package.json",
+            "reason": "This file defines project dependencies and scripts. Deleting it breaks the build.",
+            "next": "Edit the file content rather than deleting it, or delete manually in your terminal if you are certain."
+        }
     ],
     "dangerous_terminal": [
-        "rm -rf",
-        "git push --force",
-        "DROP TABLE",
-        "Remove-Item -Recurse"
+        {
+            "pattern": "rm -rf",
+            "reason": "Recursive force-delete is irreversible and may remove files outside the intended scope.",
+            "next": "Run the command manually in your terminal after confirming the target path is correct."
+        },
+        {
+            "pattern": "git push --force",
+            "reason": "Force-push rewrites remote history and cannot be undone by other collaborators.",
+            "next": "Use 'git push --force-with-lease' for a safer alternative, or run manually if you are certain."
+        },
+        {
+            "pattern": "DROP TABLE",
+            "reason": "This SQL statement permanently deletes a database table and all its data.",
+            "next": "Run the statement manually in your database client after confirming the target table."
+        },
+        {
+            "pattern": "Remove-Item -Recurse",
+            "reason": "Recursive removal is irreversible and may delete files outside the intended scope.",
+            "next": "Run the command manually in PowerShell after confirming the target path is correct."
+        }
     ],
     "credential_access": [
-        ".env",
-        "secrets",
-        "token",
-        "password"
+        {
+            "pattern": ".env",
+            "reason": "This file may contain credentials, API keys, or secrets.",
+            "next": "Use environment variable injection or a secrets manager instead of reading this file directly."
+        },
+        {
+            "pattern": "secrets",
+            "reason": "Operations on files or paths named 'secrets' may expose sensitive credentials.",
+            "next": "Use a secrets manager or environment variable injection to access credentials safely."
+        },
+        {
+            "pattern": "token",
+            "reason": "Operations involving 'token' in the path or command may expose authentication credentials.",
+            "next": "Use a secrets manager or environment variable injection to access tokens safely."
+        },
+        {
+            "pattern": "password",
+            "reason": "Operations involving 'password' in the path or command may expose sensitive credentials.",
+            "next": "Use a secrets manager or environment variable injection to access passwords safely."
+        }
     ]
 }
