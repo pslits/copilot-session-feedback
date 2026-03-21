@@ -4,6 +4,12 @@ description: Audit instruction quality for contradictions and drift
 agent: ask
 ---
 
+Audit `copilot-instructions.md` for **instruction drift** — rules that were correct at the
+time they were written but have since become contradicted, orphaned, or redundant as the
+codebase, team, or tooling evolved (Ch. 6). Running this prompt is the monthly
+drift-detection cycle: its purpose is not general housekeeping but the deliberate
+identification and removal of drifted rules.
+
 Audit `copilot-instructions.md` for contradicted, orphaned, and redundant rules.
 
 ## Instructions
