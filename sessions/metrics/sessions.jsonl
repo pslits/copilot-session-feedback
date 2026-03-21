@@ -5,3 +5,27 @@
 {"session_id": "c4e4aed7-1550-4054-a54a-6e4fd5888285", "trace_id": "33e64ee4-3ab7-422f-aeef-b0ea19092889", "start_ts": "2026-03-21T12:07:03Z", "end_ts": "2026-03-21T12:08:31.219599+00:00", "duration_seconds": 88, "turn_count": null}
 {"session_id":"copilot-pr-29-20260321","trace_id":null,"start_ts":"2026-03-21T11:30:47Z","end_ts":"2026-03-21T12:13:39Z","duration_seconds":2572,"turn_count":9}
 {"session_id": "4f9f2ea4-8311-4f1b-9e66-cf134822b588", "trace_id": "ed5e2e71-942d-4d9e-b475-d04658ed925c", "start_ts": "2026-03-21T15:21:44Z", "end_ts": "2026-03-21T15:23:49.506539+00:00", "duration_seconds": 126, "turn_count": null}
+{"session_id": "66d543bf-8991-4653-8ac5-8e27096fcb5c", "trace_id": "f7d3a0ef-cdc6-4e08-b1d1-2b26fc0eebd9", "start_ts": "2026-03-21T15:21:13Z", "end_ts": "2026-03-21T15:24:50.005680+00:00", "duration_seconds": 217, "turn_count": null}
+{"session_id": "792d1c6e-5110-42b6-bba2-546459bd59fe", "trace_id": "eaf07cf0-fea8-4477-aaab-fe954b27f998", "start_ts": "2026-03-21T15:21:12Z", "end_ts": "2026-03-21T15:23:47.896955+00:00", "duration_seconds": 156, "turn_count": null}
+{"session_id": "4c65424b-9b74-4572-a9f7-7289f94cf697", "trace_id": "657bcdaa-11d1-4f55-8c5e-332a4c03d3d3", "start_ts": "2026-03-21T15:27:16Z", "end_ts": "2026-03-21T15:30:08.368642+00:00", "duration_seconds": 172, "turn_count": null}
+{"session_id": "9dcb3927-d5be-449a-9913-3547e5f36137", "trace_id": "02df480f-ca06-4499-94bf-d21375a692ac", "start_ts": "2026-03-21T15:27:17Z", "end_ts": "2026-03-21T15:32:47.785602+00:00", "duration_seconds": 331, "turn_count": null}
+{"session_id": "b4c5cbf0-bec8-468f-adc7-b13fcc9bc038", "trace_id": "2d80c93d-bfb4-4152-8182-357de24a434e", "start_ts": "2026-03-21T15:27:07Z", "end_ts": "2026-03-21T15:29:11.098912+00:00", "duration_seconds": 124, "turn_count": null}
+{"session_id": "107c87e0-f175-41fe-b683-f219ec6b9cc3", "trace_id": "3ca66dc5-ec4b-4c4c-970e-b8e7a5676823", "start_ts": "2026-03-21T15:27:18Z", "end_ts": "2026-03-21T15:31:29.911599+00:00", "duration_seconds": 252, "turn_count": null}
+{"session_id": "f9dac2d8-9275-4cbb-9800-59ab773e2b8c", "trace_id": "6d0475c6-8f61-459e-b339-73562be5f5df", "start_ts": "2026-03-21T15:27:18Z", "end_ts": "2026-03-21T15:29:26.863652+00:00", "duration_seconds": 129, "turn_count": null}
+{"session_id": "f94df732-16f2-4181-bd3f-dab1326279d8", "trace_id": "b0adc1a3-37dc-49f2-bdb5-8890ecf77481", "start_ts": "2026-03-21T15:27:22Z", "end_ts": "2026-03-21T15:29:29.885959+00:00", "duration_seconds": 128, "turn_count": null}
+{"session_id": "a55f89c2-ab28-46c0-a3c2-8cd2295dd27e", "trace_id": "ec04c2b6-86c4-4598-885d-ba1dc2103c42", "start_ts": "2026-03-21T15:21:20Z", "end_ts": "2026-03-21T15:25:48.164781+00:00", "duration_seconds": 268, "turn_count": null}
+{"session_id": "b7a00377-b74c-48b2-9598-b9089f4ce573", "trace_id": "967b267d-c84a-4bd4-a591-263e0402864f", "start_ts": "2026-03-21T15:21:19Z", "end_ts": "2026-03-21T15:23:05.588599+00:00", "duration_seconds": 107, "turn_count": null}
+{"session_id": "66b384c1-d0c2-4958-8c69-78fd7f0dfda2", "trace_id": "6311decb-0fca-4657-a598-7fdd461cafb2", "start_ts": "2026-03-21T15:21:16Z", "end_ts": "2026-03-21T15:23:19.891632+00:00", "duration_seconds": 124, "turn_count": null}
+{"session_id": "39b9135a-9fca-41a9-8086-68f83f06a7e4", "trace_id": "a13308f4-ae97-46c0-a12e-5f012a3c669d", "start_ts": "2026-03-21T15:21:24Z", "end_ts": "2026-03-21T15:23:22.907525+00:00", "duration_seconds": 119, "turn_count": null}
+{"session_id":"copilot-pr-37-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:42Z","end_ts":"2026-03-21T15:27:10Z","duration_seconds":388,"turn_count":3}
+{"session_id":"copilot-pr-32-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:41Z","end_ts":"2026-03-21T15:30:14Z","duration_seconds":573,"turn_count":4}
+{"session_id":"copilot-pr-34-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:41Z","end_ts":"2026-03-21T15:32:28Z","duration_seconds":707,"turn_count":3}
+{"session_id":"copilot-pr-36-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:41Z","end_ts":"2026-03-21T15:36:21Z","duration_seconds":940,"turn_count":3}
+{"session_id":"copilot-pr-42-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:44Z","end_ts":"2026-03-21T15:39:13Z","duration_seconds":1109,"turn_count":4}
+{"session_id":"copilot-pr-43-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:44Z","end_ts":"2026-03-21T15:42:28Z","duration_seconds":1304,"turn_count":3}
+{"session_id":"copilot-pr-40-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:43Z","end_ts":"2026-03-21T15:53:44Z","duration_seconds":1981,"turn_count":4}
+{"session_id":"copilot-pr-39-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:43Z","end_ts":"2026-03-21T15:56:30Z","duration_seconds":2147,"turn_count":3}
+{"session_id":"copilot-pr-38-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:43Z","end_ts":"2026-03-21T16:00:39Z","duration_seconds":2396,"turn_count":3}
+{"session_id":"copilot-pr-41-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:43Z","end_ts":"2026-03-21T16:04:55Z","duration_seconds":2652,"turn_count":3}
+{"session_id":"copilot-pr-33-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:41Z","end_ts":"2026-03-21T16:08:23Z","duration_seconds":2862,"turn_count":3}
+{"session_id":"copilot-pr-35-20260321","trace_id":null,"start_ts":"2026-03-21T15:20:41Z","end_ts":"2026-03-21T16:11:25Z","duration_seconds":3044,"turn_count":3}

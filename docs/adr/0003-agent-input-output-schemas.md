@@ -1,7 +1,7 @@
 # ADR-0003: Define Formal Input/Output Schemas for RPI Agent Chain
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#11](https://github.com/pslits/copilot-session-feedback/issues/11)
 Decider: @pslits
 Risk Tier: medium
@@ -61,13 +61,18 @@ The contract table format will follow the book's Ch. 4 component interaction mod
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add contract section to @researcher agent file | @pslits | 2026-04-03 | Open |
-| Add contract section to @planner agent file | @pslits | 2026-04-03 | Open |
-| Add contract section to @implementer agent file | @pslits | 2026-04-03 | Open |
-| Cross-reference ADR-0003 in each agent file | @pslits | 2026-04-03 | Open |
+| Add contract section to @researcher agent file | @pslits | 2026-04-03 | Done |
+| Add contract section to @planner agent file | @pslits | 2026-04-03 | Done |
+| Add contract section to @implementer agent file | @pslits | 2026-04-03 | Done |
+| Cross-reference ADR-0003 in each agent file | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Added a `## Contract` section to each of the three RPI agent files
+(`.github/agents/researcher.agent.md`, `.github/agents/planner.agent.md`,
+`.github/agents/implementer.agent.md`). Each section declares the required input artefacts,
+required output artefacts, and the failure signal for an incomplete handoff.
+All three files cross-reference this ADR via a `*Ref: ADR-0003*` line.
+Status updated to Accepted.

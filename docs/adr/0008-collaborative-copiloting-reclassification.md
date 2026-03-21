@@ -1,7 +1,7 @@
 # ADR-0008: Re-classify Collaborative Co-piloting as Primary Interaction Mode
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#16](https://github.com/pslits/copilot-session-feedback/issues/16)
 Decider: @pslits
 Risk Tier: low
@@ -58,11 +58,18 @@ of the design document is the appropriate location.
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Update System Summary in design document | @pslits | 2026-04-03 | Open |
-| Update rejection table entry for Collaborative Co-piloting | @pslits | 2026-04-03 | Open |
+| Update System Summary in design document | @pslits | 2026-04-03 | Done |
+| Update rejection table entry for Collaborative Co-piloting | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Both changes have been applied to `docs/design/copilot-feedback-system-pattern-design.md`:
+
+1. A **Primary Interaction Mode** paragraph was added to the System Summary, naming Collaborative
+   Co-piloting as the foundational context and clarifying that the feedback loop is a co-piloting
+   quality improvement system specifically.
+
+2. The Tier 5 rejection table entry was updated from _"general model, not a design choice"_ to
+   _"foundational context — the interaction mode the feedback loop serves; not a pipeline component"_.

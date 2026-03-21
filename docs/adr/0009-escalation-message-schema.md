@@ -1,7 +1,7 @@
 # ADR-0009: Define Escalation Message Schema for Soft-Block (Exit Code 2)
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#17](https://github.com/pslits/copilot-session-feedback/issues/17)
 Decider: @pslits
 Risk Tier: low
@@ -64,12 +64,21 @@ All PreToolUse soft-blocks must use this schema. The schema is documented in hoo
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Define schema in hooks.instructions.md | @pslits | 2026-04-03 | Open |
-| Update security-patterns.json entries to use schema | @pslits | 2026-04-03 | Open |
-| Add schema example to PreToolUse hook template | @pslits | 2026-04-03 | Open |
+| Define schema in hooks.instructions.md | @pslits | 2026-04-03 | Done |
+| Update security-patterns.json entries to use schema | @pslits | 2026-04-03 | Done |
+| Add schema example to PreToolUse hook template | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+All three follow-up actions completed in one change:
+
+- **`security-patterns.json`**: Every entry in `protected_files`, `dangerous_terminal`, and
+  `credential_access` is now an object with `pattern`, `reason`, and `next` fields.
+- **`pre-tool-use.py`**: The soft-block output was updated to the 3-field schema
+  (`BLOCKED` / `REASON` / `NEXT`). Plain-string entries are still accepted for backward
+  compatibility, with generic fallback messages.
+- **`hooks.instructions.md`**: A new "Escalation Message Schema for Soft-Blocks (Exit Code 2)"
+  section documents the required format, provides two worked examples, and explains how to supply
+  pattern-specific messages via `security-patterns.json`.

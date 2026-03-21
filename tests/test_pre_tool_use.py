@@ -76,14 +76,47 @@ class TestPreToolUseBlockPaths:
         result = run_hook("pre-tool-use.py", payload, tmp_path)
         assert result.returncode == 2
 
-    def test_block_message_is_informative(self, tmp_path):
-        """Stderr must say BLOCKED so the developer knows what happened."""
+    def test_block_message_has_three_field_schema(self, tmp_path):
+        """Stderr must contain all three escalation fields: BLOCKED, REASON, NEXT."""
         _write_patterns(tmp_path, {"protected_files": [".github/copilot-instructions.md"], "dangerous_terminal": []})
         payload = json.dumps(
             {"tool_name": "delete_file", "tool_input": {"path": ".github/copilot-instructions.md"}}
         )
         result = run_hook("pre-tool-use.py", payload, tmp_path)
         assert "BLOCKED" in result.stderr
+        assert "REASON" in result.stderr
+        assert "NEXT" in result.stderr
+
+    def test_block_message_uses_pattern_specific_reason_and_next(self, tmp_path):
+        """When the pattern entry has reason/next fields, they appear verbatim in stderr."""
+        patterns = {
+            "protected_files": [
+                {
+                    "pattern": ".github/copilot-instructions.md",
+                    "reason": "Custom reason text.",
+                    "next": "Custom next-step text.",
+                }
+            ],
+            "dangerous_terminal": [],
+        }
+        _write_patterns(tmp_path, patterns)
+        payload = json.dumps(
+            {"tool_name": "delete_file", "tool_input": {"path": ".github/copilot-instructions.md"}}
+        )
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert result.returncode == 2
+        assert "Custom reason text." in result.stderr
+        assert "Custom next-step text." in result.stderr
+
+    def test_terminal_block_message_has_three_field_schema(self, tmp_path):
+        """Terminal command soft-blocks must also emit the 3-field schema."""
+        _write_patterns(tmp_path, {"protected_files": [], "dangerous_terminal": ["rm -rf"]})
+        payload = json.dumps({"tool_name": "bash", "tool_input": {"command": "rm -rf /important"}})
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert result.returncode == 2
+        assert "BLOCKED" in result.stderr
+        assert "REASON" in result.stderr
+        assert "NEXT" in result.stderr
 
     def test_case_insensitive_path_match(self, tmp_path):
         """Path matching should be case-insensitive."""
