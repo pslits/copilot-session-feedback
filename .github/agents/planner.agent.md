@@ -148,3 +148,17 @@ A handoff is incomplete when any of the following is true:
 - Never skip the H-i-t-L gate. The human must confirm before handoff.
 - Never speculate about code you have not opened and fully read.
 - If you discover that the task is fundamentally different from what was described, stop and report to the user before continuing.
+
+---
+
+## Fallback Recovery
+
+Use the following procedure when `@planner` fails to produce a phased plan.
+
+**Failure mode:** `@planner` completes without saving a plan file under `sessions/plans/`, or the plan file is missing required sections (phases, steps, success criteria).
+
+**Recovery steps:**
+1. Use the `@researcher` findings table as the specification in place of a formal plan.
+2. Invoke `@implementer` directly with the findings table as inline context, accepting reduced structure.
+3. Instruct `@implementer` to treat each Lens 1–4 finding row as an atomic step and apply its standard reflection and validation loop per step.
+4. Document the deviation — note "planner fallback active" in the session and reference the findings table used as input.

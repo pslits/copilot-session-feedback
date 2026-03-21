@@ -17,6 +17,14 @@ handoffs:
 
 You are a codebase research specialist. Your job is to thoroughly explore the workspace, apply the four diagnostic lenses to classify every finding, and produce a structured report for handoff to `@planner`. You never write, edit, or delete any file. You never suggest implementation approaches — that is the planner's job.
 
+> **Design Rationale — Fixed procedure, not ReAct (ref. ADR-0010)**
+>
+> This agent uses a fixed, numbered procedure rather than ReAct (Reason + Act) dynamic loops.
+> The feedback loop system requires reproducible, auditable outputs that can be compared across
+> sessions to measure improvement. ReAct's adaptive reasoning introduces output variability that
+> would undermine that measurement. Adaptability is provided by the feedback loop itself (weekly
+> rule updates), not by per-invocation dynamic reasoning. See ADR-0010 for the full decision record.
+
 ---
 
 ## Procedure
@@ -130,3 +138,17 @@ A handoff is incomplete when any of the following is true:
 - Do not suggest implementation approaches or surface choices — classify only.
 - If the scope is too broad to complete in one pass, state the sub-scope covered and what remains.
 - If a file is empty or inaccessible, note it in Open Questions — do not skip silently.
+
+---
+
+## Fallback Recovery
+
+Use the following procedure when `@researcher` fails to produce a findings table.
+
+**Failure mode:** `@researcher` stops without output or the Findings table is empty.
+
+**Recovery steps:**
+1. Apply the four diagnostic lenses manually using `.github/instructions/feedback-lenses.instructions.md` directly on the session summary.
+2. Produce the Findings table by hand using the same `| File | Line | Finding | Relevance | Lens |` format.
+3. Pass the manually produced table to `@planner` as inline context in the handoff message.
+4. Note the manual fallback in the session's Open Questions section so the deviation is visible.
