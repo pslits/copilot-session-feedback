@@ -102,7 +102,11 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **What it is:** Explicit strategies for detecting, classifying, and recovering from failures — tool errors, LLM refusals, timeouts, malformed outputs.  
 **When to use:** Production systems where reliability is required. Any workflow that calls external services.  
 **Strategies:** Retry with backoff, fallback agent, graceful degradation, human escalation.  
-**Key consideration:** Log all exceptions with enough context to debug. Don't silently swallow errors.
+**Key consideration:** Log all exceptions with enough context to debug. Don't silently swallow errors.  
+**Hook timeout strategy (ADR-0007):** All hook scripts must complete within 5000ms. Network calls
+must carry an explicit timeout; subprocess calls must use a `timeout=` parameter. On timeout or
+unrecoverable error, exit with code 2 (soft block) — the agent is informed without hard-blocking
+the session. See `hooks.instructions.md` § Timeout Budget for the per-hook breakdown.
 
 ---
 
