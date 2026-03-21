@@ -164,6 +164,76 @@ After escalation:
 
 ---
 
+## Harvesting Cloud Copilot Session Logs
+
+When an issue is assigned to the GitHub Copilot coding agent, work runs in a GitHub-hosted
+cloud environment. No local VS Code hooks fire, so nothing is written to `sessions/`
+automatically. Use this checklist after every cloud Copilot PR is merged (or closed) to keep
+the feedback loop continuous.
+
+> **Background:** ADR-0016 selected this manual approach. An automated GitHub Actions
+> workflow is deferred until ADR-0017 data-residency rules are stable.
+
+### Prerequisites
+
+- The cloud Copilot PR has been merged or closed.
+- You have the repository checked out locally with write access to `sessions/`.
+
+### Checklist
+
+1. **Open the PR on GitHub** and locate the session/activity log (visible in the PR's
+   activity feed or the Copilot coding agent session tab).
+
+2. **Identify feedback signals** in the log: corrections, re-prompts, tool-call reversals,
+   or cases where Copilot produced output that required manual editing. Note each one.
+
+3. **Create the session directory** on your local machine:
+   ```
+   sessions/YYYY-MM-DD/copilot-issue-<number>/
+   ```
+   Use the date the PR was merged and the originating issue number, e.g.
+   `sessions/2026-04-01/copilot-issue-26/`.
+
+4. **Write `metadata.json`** in that directory:
+   ```json
+   {
+     "session_id": "copilot-issue-<number>-<YYYYMMDD>",
+     "timestamp": "<ISO 8601 UTC merge timestamp>",
+     "source": "github-copilot-cloud",
+     "pr_url": "https://github.com/<owner>/<repo>/pull/<pr_number>",
+     "issue_url": "https://github.com/<owner>/<repo>/issues/<issue_number>"
+   }
+   ```
+
+5. **Write `corrections.md`** capturing the key correction patterns found in the session
+   log. One bullet per distinct correction; include the original agent action and the
+   human correction:
+   ```markdown
+   # Corrections — copilot-issue-<number>
+
+   - **<brief label>**: Agent did X; human corrected to Y.
+   ```
+
+6. **Append a row to `sessions/metrics/sessions.jsonl`** (create the file if it does not
+   exist). Each row is a single JSON object, no trailing comma:
+   ```json
+   {"session_id":"copilot-issue-<number>-<YYYYMMDD>","start_ts":"<ISO 8601>","end_ts":"<ISO 8601>","duration_seconds":0,"turn_count":<n>}
+   ```
+   Use `duration_seconds: 0` when elapsed time is not available from the log.
+   `turn_count` is the number of distinct Copilot responses visible in the activity feed.
+
+7. **Route findings** through the four diagnostic lenses in the
+   [Feedback Lenses instruction](../../.github/copilot-instructions.md) to identify any
+   corrections that should be promoted to a rule, vocabulary entry, prompt, or guardrail.
+
+### What stays local
+
+All files written in steps 3–5 are covered by the `sessions/` gitignore rule and remain on
+your local machine only. Only `sessions/metrics/sessions.jsonl` may be committed once
+ADR-0017 `.gitignore` exceptions are merged.
+
+---
+
 ## Related Documents
 
 - [Label Taxonomy](labels.md)
@@ -171,3 +241,5 @@ After escalation:
 - [ADR Template](../adr/0000-template.md)
 - [Audit Checklist](audit.md)
 - [Project Fields](project-fields.md)
+- [ADR-0016: Cloud Copilot Session Harvest Strategy](../adr/0016-cloud-copilot-session-harvest.md)
+- [ADR-0017: Session Data-Residency Policy](../adr/0017-session-data-residency.md)
