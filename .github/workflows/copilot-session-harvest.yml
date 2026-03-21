@@ -1,0 +1,80 @@
+name: Copilot Session Harvest
+
+# Runs when a copilot/* branch PR is merged. Appends one session metrics row
+# to sessions/metrics/sessions.jsonl so cloud-agent runs are visible to the
+# feedback loop (see ADR-0016 and ADR-0017).
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  harvest:
+    name: Harvest session metrics
+    runs-on: ubuntu-latest
+    # Only fire for merged PRs from copilot/* branches
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'copilot/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Build and append session record
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const branchRef = pr.head.ref;  // e.g. copilot/issue-26
+
+            // Derive session_id: prefer issue number from branch name
+            const issueMatch = branchRef.match(/\/issue-(\d+)/i);
+            const issueNumber = issueMatch ? issueMatch[1] : null;
+            const mergeDate = pr.merged_at.slice(0, 10).replace(/-/g, '');
+            const sessionId = issueNumber
+              ? `copilot-issue-${issueNumber}-${mergeDate}`
+              : `copilot-pr-${pr.number}-${mergeDate}`;
+
+            const startTs = pr.created_at;
+            const endTs = pr.merged_at;
+            const durationSeconds = Math.round(
+              (new Date(endTs) - new Date(startTs)) / 1000
+            );
+            // PR commit count is the best available proxy for turn_count
+            const turnCount = pr.commits || 0;
+
+            // Schema matches session-end.py (trace_id is null for cloud runs)
+            const record = {
+              session_id:       sessionId,
+              trace_id:         null,
+              start_ts:         startTs,
+              end_ts:           endTs,
+              duration_seconds: durationSeconds,
+              turn_count:       turnCount,
+            };
+
+            const fs   = require('fs');
+            const path = require('path');
+            const metricsDir = path.join(process.env.GITHUB_WORKSPACE, 'sessions', 'metrics');
+            const jsonlPath  = path.join(metricsDir, 'sessions.jsonl');
+
+            fs.mkdirSync(metricsDir, { recursive: true });
+            fs.appendFileSync(jsonlPath, JSON.stringify(record) + '\n', 'utf8');
+
+            core.info(`Appended session record: ${sessionId}`);
+
+      - name: Commit session record
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sessions/metrics/sessions.jsonl
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(metrics): add cloud Copilot session record for PR #${{ github.event.pull_request.number }}"
+            git push
+          fi

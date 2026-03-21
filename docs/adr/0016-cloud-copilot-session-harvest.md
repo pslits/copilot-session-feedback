@@ -16,64 +16,73 @@ coding agent, work executes in a GitHub-hosted cloud environment — no local ho
 transcript is written to `sessions/`, and no entry appears in
 `sessions/metrics/sessions.jsonl`.
 
-The PR created by Copilot contains an activity/session log, but there is no defined path to
+The PR created by Copilot contains an activity/session log, but there was no defined path to
 ingest that log into the local feedback structure. This leaves cloud-agent sessions invisible
 to the feedback loop and breaks the continuity of the improvement flywheel.
 
 ADR-0013 documents automated feedback collection as aspirational (VS Code-native only); this
 gap extends that aspiration to cover the cloud-agent execution path.
 
-A prerequisite constraint exists: `sessions/` is fully gitignored by design. Any automated
-workflow writing cloud session data must respect the data-residency policy defined in
-ADR-0017, which limits committed artefacts to `sessions/metrics/sessions.jsonl` only
-(structured metadata; no conversation content).
+The prerequisite data-residency policy (ADR-0017) has now been implemented: `.gitignore`
+exceptions expose `sessions/metrics/sessions.jsonl` to version control while keeping all
+other session artefacts (transcripts, per-session metadata) gitignored. This unblocks the
+automated harvest workflow.
 
 ---
 
 ## Decision
 
-> **We decide to adopt a hybrid approach: formalise a manual runbook step immediately, and
-> defer the automated GitHub Actions harvest workflow until the data-residency policy
-> (ADR-0017) is implemented and the manual path has confirmed a stable schema.**
+> **We decide to implement a GitHub Actions workflow (`copilot-session-harvest.yml`) that
+> automatically appends a structured metrics row to `sessions/metrics/sessions.jsonl`
+> whenever a `copilot/*` branch PR is merged.**
 
 Options evaluated:
 
 | Option | Description | Verdict |
 |---|---|---|
 | 1 — Do nothing | Cloud sessions remain invisible | Rejected — instruction drift is never captured |
-| 2 — Manual runbook | Developer copies corrections from the PR log into `sessions/` by hand | Accepted for immediate implementation |
-| 3 — GHA workflow | Workflow appends a structured row to `sessions/metrics/sessions.jsonl` on PR merge | Deferred — blocked on ADR-0017 |
-| 4 — Hybrid (selected) | Manual runbook now; automate once schema is stable | Accepted |
+| 2 — Manual runbook | Developer copies corrections from the PR log into `sessions/` by hand | Superseded — manual fallback only if workflow is disabled |
+| 3 — GHA workflow (selected) | Workflow appends a metrics row to `sessions/metrics/sessions.jsonl` on PR merge | Accepted — ADR-0017 unblocks this path |
+| 4 — Hybrid | Manual runbook now; automate once schema is stable | Superseded — ADR-0017 is implemented; schema is stable |
 
-The manual path (Option 2) is unblocked today: a developer can run a documented checklist
-locally after a cloud Copilot PR is merged, writing files to their own `sessions/`
-directory under the existing gitignore rules. The runbook section added by this ADR
-formalises that checklist.
-
-The automated path (Option 3) is deferred until:
-1. ADR-0017 `.gitignore` exceptions are merged and the schema is stable.
-2. At least one manual harvest cycle has confirmed the entry format.
+The workflow:
+1. Triggers on `pull_request` closed events where `merged == true` and the head branch
+   matches `copilot/*`.
+2. Derives the session ID from the branch name (e.g. `copilot/issue-26` →
+   `copilot-issue-26-<YYYYMMDD>`).
+3. Appends one JSONL row to `sessions/metrics/sessions.jsonl` with fields matching the
+   schema used by the VS Code `session-end.py` hook:
+   `session_id`, `trace_id` (null for cloud runs), `start_ts`, `end_ts`,
+   `duration_seconds`, `turn_count` (PR commit count as proxy).
+4. Commits and pushes the updated file to the base branch using the
+   `github-actions[bot]` identity.
 
 ---
 
 ## Consequences
 
 ### Positive
-- Cloud Copilot sessions are no longer invisible to the feedback loop once the manual
-  checklist is followed.
-- The manual step costs roughly 5 minutes per merged PR and requires no infrastructure.
-- The runbook section doubles as the specification for the future automated harvest workflow.
+- Cloud Copilot sessions are automatically captured in `sessions/metrics/sessions.jsonl`
+  without any manual intervention.
+- The metrics row is schema-compatible with the VS Code `session-end.py` output, so
+  trend analysis works across both local and cloud sessions.
+- The workflow costs no infrastructure — it runs on GitHub-hosted runners using the
+  existing `GITHUB_TOKEN`.
 
 ### Negative / Risks
-- Manual harvest depends on developer discipline; sessions will still be missed if the
-  checklist is not followed after each cloud Copilot PR merge.
-- The automated path is deferred, so trend analysis in `sessions/metrics/sessions.jsonl`
-  will not include cloud-agent sessions until Option 3 is built.
+- `turn_count` for cloud runs uses PR commit count as a proxy, which is a coarser
+  signal than the VS Code hook's turn count. This is a known approximation.
+- The workflow pushes directly to the base branch (`main`). If branch protection
+  requires PRs for all pushes, the `GITHUB_TOKEN` push will fail. A bypass rule for
+  `github-actions[bot]` would be needed.
+- Full session transcripts (Copilot reasoning, tool calls) are not captured — only
+  the structured metrics fields. This is by design (ADR-0017).
 
 ### Neutral
-- The `sessions/` gitignore rules are unchanged by this ADR (ADR-0017 owns that change).
-- The per-session directory structure written by the manual checklist mirrors what the future
-  automated workflow will produce.
+- The `.gitignore` exceptions required by this workflow were implemented in ADR-0017
+  and are already merged.
+- The per-session directory structure (`sessions/YYYY-MM-DD/<id>/`) is not written
+  by this workflow; full transcript harvest remains out of scope.
 
 ---
 
@@ -81,9 +90,9 @@ The automated path (Option 3) is deferred until:
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add "Harvesting Cloud Copilot Session Logs" section to `docs/hitl/runbook.md` | @pslits | 2026-04-10 | Done |
-| Build GHA harvest workflow once ADR-0017 schema is stable | @pslits | 2026-05-01 | Open |
+| Create `.github/workflows/copilot-session-harvest.yml` | @pslits | 2026-04-10 | Done |
 | Add note to ADR-0013 referencing cloud-agent path as concrete extension scenario | @pslits | 2026-04-10 | Done |
+| Add schema validation to SessionEnd hook (reject unknown fields) | @pslits | 2026-05-01 | Open |
 
 ---
 

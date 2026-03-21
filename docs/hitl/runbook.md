@@ -164,73 +164,38 @@ After escalation:
 
 ---
 
-## Harvesting Cloud Copilot Session Logs
+## Cloud Copilot Session Harvest
 
 When an issue is assigned to the GitHub Copilot coding agent, work runs in a GitHub-hosted
 cloud environment. No local VS Code hooks fire, so nothing is written to `sessions/`
-automatically. Use this checklist after every cloud Copilot PR is merged (or closed) to keep
-the feedback loop continuous.
+automatically. The `copilot-session-harvest` workflow handles this automatically.
 
-> **Background:** ADR-0016 selected this manual approach. An automated GitHub Actions
-> workflow is deferred until ADR-0017 data-residency rules are stable.
+### How It Works
 
-### Prerequisites
+The workflow (`.github/workflows/copilot-session-harvest.yml`) triggers whenever a
+`copilot/*` branch PR is merged. It:
 
-- The cloud Copilot PR has been merged or closed.
-- You have the repository checked out locally with write access to `sessions/`.
+1. Checks out the base branch.
+2. Derives a `session_id` from the branch name
+   (e.g. `copilot/issue-26` → `copilot-issue-26-<YYYYMMDD>`).
+3. Appends one row to `sessions/metrics/sessions.jsonl` using the same schema as the VS Code
+   `session-end.py` hook (`session_id`, `trace_id`, `start_ts`, `end_ts`,
+   `duration_seconds`, `turn_count`).
+4. Commits and pushes the updated file.
 
-### Checklist
+No manual steps are required for metrics collection.
 
-1. **Open the PR on GitHub** and locate the session/activity log (visible in the PR's
-   activity feed or the Copilot coding agent session tab).
+### Troubleshooting the Harvest Workflow
 
-2. **Identify feedback signals** in the log: corrections, re-prompts, tool-call reversals,
-   or cases where Copilot produced output that required manual editing. Note each one.
+| Problem | Likely Cause | Resolution |
+|---|---|---|
+| Workflow does not trigger after PR merge | PR branch does not start with `copilot/` | Verify the branch name; Copilot-created branches follow the `copilot/issue-<n>` pattern. |
+| Workflow triggers but push step fails | Branch protection requires PRs for all pushes | Add a bypass rule for `github-actions[bot]` in the branch protection settings. |
+| `sessions/metrics/sessions.jsonl` not updated | Workflow run skipped (already up to date) | Check the workflow run log; this is expected if git detects no diff. |
 
-3. **Create the session directory** on your local machine:
-   ```
-   sessions/YYYY-MM-DD/copilot-issue-<number>/
-   ```
-   Use the date the PR was merged and the originating issue number, e.g.
-   `sessions/2026-04-01/copilot-issue-26/`.
-
-4. **Write `metadata.json`** in that directory:
-   ```json
-   {
-     "session_id": "copilot-issue-<number>-<YYYYMMDD>",
-     "timestamp": "<ISO 8601 UTC merge timestamp>",
-     "source": "github-copilot-cloud",
-     "pr_url": "https://github.com/<owner>/<repo>/pull/<pr_number>",
-     "issue_url": "https://github.com/<owner>/<repo>/issues/<issue_number>"
-   }
-   ```
-
-5. **Write `corrections.md`** capturing the key correction patterns found in the session
-   log. One bullet per distinct correction; include the original agent action and the
-   human correction:
-   ```markdown
-   # Corrections — copilot-issue-<number>
-
-   - **<brief label>**: Agent did X; human corrected to Y.
-   ```
-
-6. **Append a row to `sessions/metrics/sessions.jsonl`** (create the file if it does not
-   exist). Each row is a single JSON object, no trailing comma:
-   ```json
-   {"session_id":"copilot-issue-<number>-<YYYYMMDD>","start_ts":"<ISO 8601>","end_ts":"<ISO 8601>","duration_seconds":0,"turn_count":<n>}
-   ```
-   Use `duration_seconds: 0` when elapsed time is not available from the log.
-   `turn_count` is the number of distinct Copilot responses visible in the activity feed.
-
-7. **Route findings** through the four diagnostic lenses in the
-   [Feedback Lenses instruction](../../.github/copilot-instructions.md) to identify any
-   corrections that should be promoted to a rule, vocabulary entry, prompt, or guardrail.
-
-### What stays local
-
-All files written in steps 3–5 are covered by the `sessions/` gitignore rule and remain on
-your local machine only. Only `sessions/metrics/sessions.jsonl` may be committed once
-ADR-0017 `.gitignore` exceptions are merged.
+> **Background:** ADR-0016 records the decision to implement this automated approach.
+> ADR-0017 (implemented and merged) defines the data-residency policy:
+> `sessions/metrics/sessions.jsonl` is the only file committed; transcripts remain local-only.
 
 ---
 
