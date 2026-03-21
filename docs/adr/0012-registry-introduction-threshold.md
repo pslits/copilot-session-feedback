@@ -1,7 +1,7 @@
 # ADR-0012: Document Registry Introduction Threshold
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#20](https://github.com/pslits/copilot-session-feedback/issues/20)
 Decider: @pslits
 Risk Tier: low
@@ -56,10 +56,12 @@ point at which discovery and governance overhead exceeds the cost of a registry.
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add introduction threshold to Tool and Agent Registry entry | @pslits | 2026-04-03 | Open |
+| Add introduction threshold to Tool and Agent Registry entry | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Added the sentence "Introduce when the system reaches 5+ active agents OR 10+ active skills,
+whichever comes first." to the **When to use** field of the Tool and Agent Registry entry in
+`.github/skills/agentic-patterns/references/patterns-catalogue.md`.
