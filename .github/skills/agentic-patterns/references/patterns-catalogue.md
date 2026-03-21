@@ -128,6 +128,8 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **When to use:** Distributed multi-agent systems; microservice-style agent architectures; cross-team agent collaboration.  
 **Key consideration:** Standardise message envelopes (sender, receiver, intent, payload, trace ID). Implement idempotency.
 
+> **Informal A2A in VS Code:** The VS Code handoff mechanism used between `@researcher`, `@planner`, and `@implementer` is _informal_ A2A — accumulated context is forwarded at the UI layer without a structured message envelope, trace ID, or idempotency guarantee. This satisfies the spirit of A2A for a single-developer, single-process context. Formal A2A (with protocol envelopes and trace IDs) is warranted when agents operate across process boundaries, network hops, or team boundaries. See ADR-0004 for the upgrade path.
+
 ---
 
 ### 16. Resource-Aware Optimization
@@ -192,6 +194,8 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 
 **When to use:** As the design framework for any multi-component agentic system. Determines which integration layer to use for each external capability.  
 **Key consideration:** Build layers in order. A2A coordination depends on reliable MCP tool access, which depends on reliable function-calling.
+
+> **VS Code handoffs as informal A2A:** In a single-developer VS Code context, agent handoffs (e.g., `@researcher → @planner → @implementer`) operate at the A2A layer informally — context is forwarded through the chat UI without a formal protocol envelope. This is sufficient for single-process, single-developer use. Formal A2A (message envelopes, trace IDs, idempotency) becomes necessary when agents span process boundaries, network hops, or team collaboration. See ADR-0004 for details on the informal vs formal distinction and the upgrade path.
 
 ---
 
