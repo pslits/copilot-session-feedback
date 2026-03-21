@@ -150,6 +150,34 @@ When all approved phases are complete:
 
 ---
 
+## Contract
+
+*Ref: [ADR-0003](../../docs/adr/0003-agent-input-output-schemas.md)*
+
+### Input
+
+| Item | Format | Required |
+|------|--------|----------|
+| Approved plan file path | Path to `sessions/plans/YYYY-MM-DD-<slug>.md` | Yes |
+| Plan approval status | Explicit human approval recorded in plan or conversation | Yes |
+
+### Output
+
+| Item | Format | Required |
+|------|--------|----------|
+| Step Results table | Markdown table: Phase, Step, Files Changed, Checks Run, Result, Notes | Yes |
+| Phase Summary (per phase) | Markdown prose: completed steps, aggregate criteria pass/fail, risks | Yes |
+| Final Report | Markdown section: changes, validation outcomes, deviations, open follow-ups | Yes |
+
+### Failure Signal
+
+A run is incomplete when any of the following is true:
+- The approved plan file path was not provided.
+- Any phase success criteria remain unmet at session end.
+- The Final Report section is absent or lists unchecked validation outcomes.
+
+---
+
 ## Rules
 
 - Implement only from an approved plan; do not start from a vague request.
