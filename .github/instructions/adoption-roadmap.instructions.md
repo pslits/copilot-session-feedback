@@ -27,6 +27,7 @@ by the prior level. Skipping creates fragile systems with undetectable failures.
 | **Phase 2** (≈1 week) | Level 3 — Automated | #1 stop hook, #18 security gate, #21 PostToolUse format, #9 `/research`, #13 token budget | Phase 1 completion criteria all ✓ | ✓ Stop hook operational (exits 0 on session end); ✓ ≥1 hook event logged to sessions.jsonl; ✓ security gate soft-blocks destructive commands; ✓ PostToolUse formats files without manual invocation |
 | **Phase 3** (≈2 weeks) | Level 4 — Coordinated | #3 PreCompact, #4 PostCompact, #5 SessionStart, #10 `@researcher`, #16 `@planner`, #17 `@implementer`, #14 template library, #20 success metrics, #23 feedback debt | Phase 2 completion criteria all ✓; ≥ 4 sessions completed | ✓ RPI chain used end-to-end ≥1 time; ✓ `@implementer` executes a `@planner`-produced plan successfully; ✓ feedback debt tracker has ≥1 item in Done status |
 | **Ongoing** | Level 4–5 — Team Scale | #6 SessionEnd, #7 notification, #11 feedback-analyser skill, #24 this document, #25 stop checklist injection | Week 4 exit criteria all ✓ | ✓ corrections per session trending ↓ over 4 consecutive weeks |
+| **Aspirational** _(out of scope for current VS Code-native constraint)_ | Level 5 — Autonomous | Automated pattern detection replaces manual session analysis; hook scripts auto-propose new rules without human initiation; Self-Improvement Flywheel operates without developer intervention | Ongoing exit criteria all ✓; ≥ 12 weeks of stable Level 4–5 operation; corrections per session at ≤ 1 for ≥ 4 consecutive weeks | ✓ system auto-detects a recurring correction and proposes a rule without manual `/compact`; ✓ false-positive rate of auto-proposed rules < 20%; ✓ no regression in existing rule compliance |
 | **Ongoing (aspirational)** | Level 5 — Autonomous | Automated feedback collection (see below) | ≥ 8 weeks of stable manual loop operation; corrections per session trending ↓ confirmed | ✓ At least one automated correction-pattern signal replaces a manual tally |
 
 ## Friction Checkpoints
@@ -39,6 +40,7 @@ Before advancing each phase, verify the friction risks below are mitigated:
 | Phase 2 → 3 | Hook latency adds perceptible delay | Keep all hook scripts < 500ms; test each hook independently before deployment |
 | Phase 3 → Ongoing | Agent chain clicks add workflow steps | RPI agents are Phase 3 only after single-agent workflows are validated; do not introduce agents earlier |
 | Ongoing | Metrics tracking becomes a chore | SessionEnd hook automates timestamp logging; only corrections-per-session requires a manual tally |
+| Ongoing → Level 5 | Premature automation introduces false positives and rule noise | Only pursue Level 5 after ≥ 12 weeks at Level 4–5 with corrections per session ≤ 1; validate auto-proposed rules with a human gate before applying them |
 
 ## Automated Feedback Collection (Aspirational)
 
@@ -70,3 +72,6 @@ When producing a plan under `sessions/plans/**`:
 4. Include the friction checkpoint for the transition being planned.
 Reason: plans scoped beyond the current maturity level produce incomplete implementations
 that fail at integration time.
+
+> See [ADR-0001](../../docs/adr/0001-level5-autonomous-maturity-placeholder.md) for the
+> rationale behind the Level 5 aspirational placeholder.
