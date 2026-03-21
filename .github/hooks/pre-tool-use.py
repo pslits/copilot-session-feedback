@@ -10,7 +10,9 @@ from pathlib import Path
 PATTERNS_FILE = Path(".github/security-patterns.json")
 
 # Tools that operate on files.
-FILE_TOOLS = {"write_file", "edit_file", "delete_file", "rename_file", "move_file"}
+# REVIEW(R-13): "create_file" is missing from FILE_TOOLS.  Files created with the
+# create_file tool bypass all protected-path and pattern checks entirely.
+FILE_TOOLS = {"write_file", "edit_file", "delete_file", "rename_file", "move_file", "create_file"}
 
 # Tools that run shell/terminal commands.
 TERMINAL_TOOLS = {"run_terminal", "run_in_terminal", "bash", "powershell"}
@@ -128,6 +130,11 @@ def main() -> None:
         block_msg = check_file_operation(tool_input, patterns)
     elif tool_name in TERMINAL_TOOLS:
         block_msg = check_terminal_command(tool_input, patterns)
+    # REVIEW(R-02): The "credential_access" category in security-patterns.json
+    # (patterns for .env, secrets, token, password, etc.) is never checked here.
+    # A check_credential_access() branch must be added — either as a new elif
+    # for a CREDENTIAL_TOOLS set, or by extending check_file_operation() to also
+    # scan path values against credential_access patterns.
 
     if block_msg:
         print(

@@ -37,6 +37,8 @@ def main() -> None:
 
     # Write the snapshot — include the raw payload plus capture timestamp and trace ID
     snapshot = {
+        # REVIEW(R-15): Redundant f-string — f"{timestamp}" is identical to timestamp.
+        # Replace with just: "captured_at": timestamp,
         "captured_at": f"{timestamp}",
         "session_id": session_id,
         "trace_id": read_trace_id(),

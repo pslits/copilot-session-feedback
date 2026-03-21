@@ -26,8 +26,13 @@ FORMATTER_MAP = {
 
 def get_file_path(tool_input: dict) -> str:
     """Extract the file path from the tool input dict (key name varies by tool)."""
+    # REVIEW(R-03): VS Code passes the written-file path as "filePath" (camelCase).
+    # None of the three keys below ("path", "file_path", "target_file") match that,
+    # so get_file_path() always returns "" and the formatter never fires in normal
+    # VS Code usage.  Add tool_input.get("filePath") as the first candidate.
     return (
-        tool_input.get("path")
+        tool_input.get("filePath")
+        or tool_input.get("path")
         or tool_input.get("file_path")
         or tool_input.get("target_file")
         or ""

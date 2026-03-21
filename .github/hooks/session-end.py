@@ -26,6 +26,10 @@ def main() -> None:
 
     session_id: str = payload.get("sessionId", payload.get("session_id", "")).strip()
     start_ts: str = payload.get("start_ts", "") or read_start_ts() or ""
+    # REVIEW(R-05): VS Code's SessionEnd payload never includes "turn_count".
+    # This field is always None (34/35 sessions.jsonl entries confirm this).
+    # Either remove the field, or derive it from an internal counter that is
+    # incremented by the PostToolUse hook and persisted alongside trace_id.
     turn_count = payload.get("turn_count", None)
 
     end_ts = datetime.now(timezone.utc).isoformat()

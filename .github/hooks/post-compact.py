@@ -10,6 +10,13 @@ sys.path.insert(0, str(Path(__file__).parent))
 from _trace import read_trace_id  # noqa: E402
 
 INSTRUCTIONS_PATH = Path(".github/copilot-instructions.md")
+# REVIEW(R-01): PRIORITY_MARKER never matches copilot-instructions.md — the string
+# "# PRIORITY: HIGH" does not appear anywhere in that file.  extract_priority_lines()
+# always returns [] and build_context() always falls through to FALLBACK_MESSAGE.
+# Rule re-injection is silently broken in every production session.
+# Fix: either add "# PRIORITY: HIGH" markers to copilot-instructions.md, or replace
+# this mechanism with a section-based extractor (e.g. grab the first N lines after
+# a specific heading).
 PRIORITY_MARKER = "# PRIORITY: HIGH"
 MAX_CHARS = 800  # Conservative ceiling ≈ 200 tokens
 MAX_RULES = 5
@@ -27,6 +34,8 @@ def extract_priority_lines(path: Path) -> list[str]:
     except OSError:
         return []
 
+    # REVIEW(R-01): Because PRIORITY_MARKER never matches (see definition above),
+    # priority_lines is always empty.  The fallback path at line 36 always fires.
     priority_lines = [line.rstrip() for line in lines if PRIORITY_MARKER in line]
     return priority_lines[:MAX_RULES]
 
