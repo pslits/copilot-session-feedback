@@ -6,6 +6,12 @@ applyTo: "**/*.instructions.md,**/copilot-instructions.md"
 
 # Rule Writing Checklist
 
+**Instruction drift** is the process by which rules that were correct at time T become
+incorrect or misleading by time T+N as the codebase, team, or tooling evolves (Ch. 6).
+This checklist is the first line of defence against drift: every rule admitted through
+this gate should be verifiable, scoped, and auditable so that the monthly drift-detection
+cycle (run via `/audit`) can flag stale rules before they mislead the agent.
+
 Use this checklist before saving any new or updated instruction rule.
 
 ## Checklist
