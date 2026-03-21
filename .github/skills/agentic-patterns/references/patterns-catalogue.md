@@ -128,6 +128,8 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **When to use:** Distributed multi-agent systems; microservice-style agent architectures; cross-team agent collaboration.  
 **Key consideration:** Standardise message envelopes (sender, receiver, intent, payload, trace ID). Implement idempotency.
 
+> **Informal A2A in VS Code:** The VS Code handoff mechanism used between `@researcher`, `@planner`, and `@implementer` is _informal_ A2A — accumulated context is forwarded at the UI layer without a structured message envelope, trace ID, or idempotency guarantee. This satisfies the spirit of A2A for a single-developer, single-process context. Formal A2A (with protocol envelopes and trace IDs) is warranted when agents operate across process boundaries, network hops, or team boundaries. See ADR-0004 for the upgrade path.
+
 ---
 
 ### 16. Resource-Aware Optimization
@@ -192,6 +194,8 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 
 **When to use:** As the design framework for any multi-component agentic system. Determines which integration layer to use for each external capability.  
 **Key consideration:** Build layers in order. A2A coordination depends on reliable MCP tool access, which depends on reliable function-calling.
+
+> **VS Code handoffs as informal A2A:** In a single-developer VS Code context, agent handoffs (e.g., `@researcher → @planner → @implementer`) operate at the A2A layer informally — context is forwarded through the chat UI without a formal protocol envelope. This is sufficient for single-process, single-developer use. Formal A2A (message envelopes, trace IDs, idempotency) becomes necessary when agents span process boundaries, network hops, or team collaboration. See ADR-0004 for details on the informal vs formal distinction and the upgrade path.
 
 ---
 
@@ -338,7 +342,7 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 
 #### Tool and Agent Registry
 **What it is:** A centralised catalogue of available tools and agents — their identities, capabilities, input/output schemas, versioning, and health status. Agents discover and invoke capabilities through the registry.  
-**When to use:** Multi-agent systems with more than 3–4 agents or tool sets; systems that evolve over time with new capabilities added; enterprise deployments requiring governance of available capabilities.  
+**When to use:** Multi-agent systems with more than 3–4 agents or tool sets; systems that evolve over time with new capabilities added; enterprise deployments requiring governance of available capabilities. Introduce when the system reaches 5+ active agents OR 10+ active skills, whichever comes first.  
 **Key consideration:** The registry is a new single point of failure. Implement caching and failover. Enforce schema versioning to prevent breaking changes.
 
 ---
@@ -347,6 +351,16 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **What it is:** Structured hooks fired at key agent lifecycle events (task start, tool call, tool response, reasoning step, task end, error) that feed an observability pipeline — enabling tracing, logging, metrics, and cost tracking per agent invocation.  
 **When to use:** All production agentic systems. Non-negotiable for debugging, compliance, cost management, and performance optimisation.  
 **Key consideration:** Callback overhead adds latency. Use async emission where possible. Define a consistent event schema across all agents from day one.
+
+**ADK ↔ VS Code hook equivalence** *(verified against ADK 1.x — review if ADK major version changes)*
+
+| ADK Event | VS Code Hook | Schema notes |
+|---|---|---|
+| `on_agent_start` | `SessionStart` | ADK includes `trace_id`; VS Code does not (see ADR-0011) |
+| `on_tool_call` | `PreToolUse` | ADK has typed tool schema; VS Code passes stdin JSON |
+| `on_tool_response` | `PostToolUse` | Similar structure; both carry tool name and output |
+| `on_agent_end` | `SessionEnd` / `Stop` | VS Code has two variants (graceful vs. interrupted); ADK has one |
+| *(no equivalent)* | `PreCompact` / `PostCompact` | VS Code-specific; context compression has no ADK analogue |
 
 ---
 

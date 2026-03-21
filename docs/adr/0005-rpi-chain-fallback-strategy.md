@@ -1,7 +1,7 @@
 # ADR-0005: Define Fallback Strategy for RPI Chain Agent Failure
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#13](https://github.com/pslits/copilot-session-feedback/issues/13)
 Decider: @pslits
 Risk Tier: medium
@@ -63,13 +63,18 @@ HITL design.
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add fallback table to design document (Multi-Agent risks row) | @pslits | 2026-04-03 | Open |
-| Add fallback recovery section to @researcher agent file | @pslits | 2026-04-03 | Open |
-| Add fallback recovery section to @planner agent file | @pslits | 2026-04-03 | Open |
-| Add fallback recovery section to @implementer agent file | @pslits | 2026-04-03 | Open |
+| Add fallback table to design document (Multi-Agent risks row) | @pslits | 2026-04-03 | Done |
+| Add fallback recovery section to @researcher agent file | @pslits | 2026-04-03 | Done |
+| Add fallback recovery section to @planner agent file | @pslits | 2026-04-03 | Done |
+| Add fallback recovery section to @implementer agent file | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+All four follow-up actions completed. A fallback table was added to the design document's
+Risks and Mitigations section under a new "RPI Chain Fallback Procedures" subsection. Each of
+the three RPI agent files (`researcher.agent.md`, `planner.agent.md`, `implementer.agent.md`)
+now contains a "Fallback Recovery" section documenting the failure mode, symptom, and concrete
+human-actioned recovery steps. Fallbacks are framed as last-resort procedures, consistent with
+the HITL design and Ch. 5 resilience guidance.

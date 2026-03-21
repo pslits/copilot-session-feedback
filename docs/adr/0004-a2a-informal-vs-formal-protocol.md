@@ -1,7 +1,7 @@
 # ADR-0004: Document VS Code Handoffs as Informal A2A
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#12](https://github.com/pslits/copilot-session-feedback/issues/12)
 Decider: @pslits
 Risk Tier: low
@@ -55,11 +55,14 @@ network hops — not applicable in this single-process VS Code context."
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Update Agentic Stack entry in patterns-catalogue.md | @pslits | 2026-04-03 | Open |
-| Update A2A (Gulli #15) entry with informal A2A note | @pslits | 2026-04-03 | Open |
+| Update Agentic Stack entry in patterns-catalogue.md | @pslits | 2026-04-03 | Done |
+| Update A2A (Gulli #15) entry with informal A2A note | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Clarifying notes added to both the A2A (Gulli #15) entry and the Agentic Stack entry in
+`patterns-catalogue.md`. Both notes explain that VS Code agent handoffs are informal A2A
+(context forwarding without a protocol envelope) and document when formal A2A would be warranted
+(cross-process, cross-network, or cross-team scenarios). ADR status updated to Accepted.
