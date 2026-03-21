@@ -323,7 +323,7 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 
 #### Tool and Agent Registry
 **What it is:** A centralised catalogue of available tools and agents — their identities, capabilities, input/output schemas, versioning, and health status. Agents discover and invoke capabilities through the registry.  
-**When to use:** Multi-agent systems with more than 3–4 agents or tool sets; systems that evolve over time with new capabilities added; enterprise deployments requiring governance of available capabilities.  
+**When to use:** Multi-agent systems with more than 3–4 agents or tool sets; systems that evolve over time with new capabilities added; enterprise deployments requiring governance of available capabilities. Introduce when the system reaches 5+ active agents OR 10+ active skills, whichever comes first.  
 **Key consideration:** The registry is a new single point of failure. Implement caching and failover. Enforce schema versioning to prevent breaking changes.
 
 ---
