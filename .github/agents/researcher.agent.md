@@ -102,3 +102,17 @@ Paste **only** the Findings table here. No prose. This is the payload `@planner`
 - Do not suggest implementation approaches or surface choices — classify only.
 - If the scope is too broad to complete in one pass, state the sub-scope covered and what remains.
 - If a file is empty or inaccessible, note it in Open Questions — do not skip silently.
+
+---
+
+## Fallback Recovery
+
+Use the following procedure when `@researcher` fails to produce a findings table.
+
+**Failure mode:** `@researcher` stops without output or the Findings table is empty.
+
+**Recovery steps:**
+1. Apply the four diagnostic lenses manually using `.github/instructions/feedback-lenses.instructions.md` directly on the session summary.
+2. Produce the Findings table by hand using the same `| File | Line | Finding | Relevance | Lens |` format.
+3. Pass the manually produced table to `@planner` as inline context in the handoff message.
+4. Note the manual fallback in the session's Open Questions section so the deviation is visible.
