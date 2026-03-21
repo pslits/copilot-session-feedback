@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Allow sibling hook modules to be imported when running as a standalone script.
 sys.path.insert(0, str(Path(__file__).parent))
-from _trace import read_trace_id  # noqa: E402
+from _trace import read_trace_id, read_start_ts  # noqa: E402
 
 
 def main() -> None:
@@ -25,7 +25,7 @@ def main() -> None:
         sys.exit(0)
 
     session_id: str = payload.get("sessionId", payload.get("session_id", "")).strip()
-    start_ts: str = payload.get("start_ts", "")
+    start_ts: str = payload.get("start_ts", "") or read_start_ts() or ""
     turn_count = payload.get("turn_count", None)
 
     end_ts = datetime.now(timezone.utc).isoformat()

@@ -9,7 +9,8 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
+sys.path.insert(0, str(Path(__file__).parent))
+from _trace import TRACE_ID_PATH, START_TS_PATH  # noqa: E402
 
 
 def run_git(args: list[str]) -> str:
@@ -54,6 +55,19 @@ def persist_trace_id(trace_id: str) -> None:
         )
 
 
+def persist_start_ts(timestamp: str) -> None:
+    """Write the session start timestamp to disk so session-end.py can compute duration."""
+    try:
+        START_TS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        START_TS_PATH.write_text(timestamp, encoding="utf-8")
+    except OSError as exc:
+        print(
+            f"session-start.py: could not persist start timestamp: {exc}. "
+            "Session duration will be unavailable.",
+            file=sys.stderr,
+        )
+
+
 def main() -> None:
     # Read stdin (ignore contents — SessionStart payload may be empty)
     try:
@@ -72,6 +86,10 @@ def main() -> None:
     commit_sha = run_git(["git", "log", "-1", "--format=%H"])
     version = read_package_version()
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # Persist start timestamp so session-end.py can compute duration even when VS Code
+    # does not include start_ts in the SessionEnd payload.
+    persist_start_ts(timestamp)
 
     # Build additionalContext — aim for ≤ 100 tokens (≈ 400 characters)
     context_lines = [
