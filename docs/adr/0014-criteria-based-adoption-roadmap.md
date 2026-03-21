@@ -1,7 +1,7 @@
 # ADR-0014: Convert Adoption Roadmap from Time-Based to Criteria-Based Phases
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#22](https://github.com/pslits/copilot-session-feedback/issues/22)
 Decider: @pslits
 Risk Tier: medium
@@ -69,13 +69,18 @@ Proposed phase thresholds (to be validated):
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Rewrite adoption-roadmap.instructions.md phase gates to criteria-based | @pslits | 2026-04-10 | Open |
-| Add time estimates as parenthetical guidance | @pslits | 2026-04-10 | Open |
+| Rewrite adoption-roadmap.instructions.md phase gates to criteria-based | @pslits | 2026-04-10 | Done |
+| Add time estimates as parenthetical guidance | @pslits | 2026-04-10 | Done |
 | Validate proposed thresholds against actual adoption experience | @pslits | 2026-05-01 | Open |
-| Cross-reference ADR-0014 in the roadmap file | @pslits | 2026-04-10 | Open |
+| Cross-reference ADR-0014 in the roadmap file | @pslits | 2026-04-10 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Phase gates rewritten from time-based (Week 1/2/4) to criteria-based (Phase 1/2/3/Ongoing).
+Time estimates retained as parenthetical guidance in the Phase column. Observable completion
+thresholds added per ADR-0014 decision: `/verify` pass + rule commit for Phase 1; stop hook
+operational + sessions.jsonl entry for Phase 2; RPI chain end-to-end + @implementer execution
+for Phase 3; corrections/session trending down for Ongoing. ADR-0014 cross-referenced in the
+roadmap file. Applied 2026-03-21.

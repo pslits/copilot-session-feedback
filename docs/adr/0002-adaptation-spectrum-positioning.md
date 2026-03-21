@@ -1,7 +1,7 @@
 # ADR-0002: Position Framework on the LLM Adaptation Spectrum
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#10](https://github.com/pslits/copilot-session-feedback/issues/10)
 Decider: @pslits
 Risk Tier: low
@@ -53,11 +53,18 @@ deprioritised. This is the known upper bound of the approach.
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Update Memory Management entry in patterns-catalogue.md | @pslits | 2026-04-03 | Open |
-| Cross-reference Ch. 3 of the book in the entry | @pslits | 2026-04-03 | Open |
+| Update Memory Management entry in patterns-catalogue.md | @pslits | 2026-04-03 | Done |
+| Cross-reference Ch. 3 of the book in the entry | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+The Memory Management catalogue entry (pattern #8) in
+`.github/skills/agentic-patterns/references/patterns-catalogue.md` now includes an explicit
+**Adaptation mechanism** paragraph that:
+
+- Names in-context learning as the framework's adaptation mechanism on the Ch. 3 spectrum.
+- States why RAG and fine-tuning are excluded (disproportionate pipeline overhead; unavailable in VS Code integration).
+- Documents the ~3 000-token context-window ceiling as a known upper bound.
+- Notes the PostCompact hook as a partial mitigation that delays — but does not remove — the ceiling.

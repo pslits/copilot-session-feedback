@@ -113,6 +113,34 @@ Ask exactly:
 
 ---
 
+## Contract
+
+*Ref: [ADR-0003](../../docs/adr/0003-agent-input-output-schemas.md)*
+
+### Input
+
+| Item | Format | Required |
+|------|--------|----------|
+| Researcher handoff table | Markdown table: File, Line, Finding, Relevance, Lens | Yes |
+| Task description or goal | Plain text, one sentence minimum | Yes |
+
+### Output
+
+| Item | Format | Required |
+|------|--------|----------|
+| Current State Summary | Markdown prose — facts only, no proposals | Yes |
+| Reasoning Summary | Markdown prose — selected approaches and justifications | Yes |
+| Phased implementation plan | Markdown file saved to `sessions/plans/YYYY-MM-DD-<slug>.md` | Yes |
+
+### Failure Signal
+
+A handoff is incomplete when any of the following is true:
+- No plan file is saved under `sessions/plans/`.
+- The plan file is missing phases, ordered steps, preconditions, or success criteria.
+- The Human-in-the-Loop gate was not passed before handoff to `@implementer` (gate is passed when the human replies with "Approve" or equivalent explicit confirmation in the conversation).
+
+---
+
 ## Constraints
 
 - You are **read-only** for source code. The only file you create is the plan document.
@@ -120,3 +148,17 @@ Ask exactly:
 - Never skip the H-i-t-L gate. The human must confirm before handoff.
 - Never speculate about code you have not opened and fully read.
 - If you discover that the task is fundamentally different from what was described, stop and report to the user before continuing.
+
+---
+
+## Fallback Recovery
+
+Use the following procedure when `@planner` fails to produce a phased plan.
+
+**Failure mode:** `@planner` completes without saving a plan file under `sessions/plans/`, or the plan file is missing required sections (phases, steps, success criteria).
+
+**Recovery steps:**
+1. Use the `@researcher` findings table as the specification in place of a formal plan.
+2. Invoke `@implementer` directly with the findings table as inline context, accepting reduced structure.
+3. Instruct `@implementer` to treat each Lens 1–4 finding row as an atomic step and apply its standard reflection and validation loop per step.
+4. Document the deviation — note "planner fallback active" in the session and reference the findings table used as input.

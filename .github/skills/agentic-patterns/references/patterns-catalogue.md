@@ -72,6 +72,18 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **When to use:** The agent needs to remember user preferences, past decisions, or domain knowledge beyond a single session.  
 **Key consideration:** Retrieval quality determines output quality. Invest in chunking and embedding strategies.
 
+**Adaptation mechanism (Ch. 3):** This framework uses **in-context learning** as its adaptation
+mechanism — rules are injected into `copilot-instructions.md` and re-injected via the PostCompact
+hook at inference time. This is a deliberate choice on the Ch. 3 spectrum (in-context learning →
+RAG → fine-tuning) given the VS Code-native, single-developer constraint. RAG and fine-tuning are
+explicitly excluded: RAG requires an external retrieval pipeline that is disproportionate for this
+use case; fine-tuning is unavailable in the GitHub Copilot VS Code integration.  
+**Context-window ceiling:** In-context learning is bounded by the model's context window. When
+`copilot-instructions.md` grows beyond approximately 3 000 tokens, later rules are silently dropped
+or ignored by the model. This is the known upper bound of the approach. The PostCompact hook
+provides a partial mitigation by re-injecting rules tagged `# PRIORITY: HIGH` after context
+compression, but it does not remove the ceiling — it only delays when the ceiling is reached.
+
 ---
 
 ### 9. Learning and Adaptation
@@ -102,7 +114,11 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **What it is:** Explicit strategies for detecting, classifying, and recovering from failures — tool errors, LLM refusals, timeouts, malformed outputs.  
 **When to use:** Production systems where reliability is required. Any workflow that calls external services.  
 **Strategies:** Retry with backoff, fallback agent, graceful degradation, human escalation.  
-**Key consideration:** Log all exceptions with enough context to debug. Don't silently swallow errors.
+**Key consideration:** Log all exceptions with enough context to debug. Don't silently swallow errors.  
+**Hook timeout strategy (ADR-0007):** All hook scripts must complete within 5000ms. Network calls
+must carry an explicit timeout; subprocess calls must use a `timeout=` parameter. On timeout or
+unrecoverable error, exit with code 2 (soft block) — the agent is informed without hard-blocking
+the session. See `hooks.instructions.md` § Timeout Budget for the per-hook breakdown.
 
 ---
 
@@ -127,6 +143,8 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **What it is:** Formal protocols for agents to exchange structured messages, share state, and coordinate actions across process or service boundaries.  
 **When to use:** Distributed multi-agent systems; microservice-style agent architectures; cross-team agent collaboration.  
 **Key consideration:** Standardise message envelopes (sender, receiver, intent, payload, trace ID). Implement idempotency.
+
+> **Informal A2A in VS Code:** The VS Code handoff mechanism used between `@researcher`, `@planner`, and `@implementer` is _informal_ A2A — accumulated context is forwarded at the UI layer without a structured message envelope, trace ID, or idempotency guarantee. This satisfies the spirit of A2A for a single-developer, single-process context. Formal A2A (with protocol envelopes and trace IDs) is warranted when agents operate across process boundaries, network hops, or team boundaries. See ADR-0004 for the upgrade path.
 
 ---
 
@@ -192,6 +210,8 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 
 **When to use:** As the design framework for any multi-component agentic system. Determines which integration layer to use for each external capability.  
 **Key consideration:** Build layers in order. A2A coordination depends on reliable MCP tool access, which depends on reliable function-calling.
+
+> **VS Code handoffs as informal A2A:** In a single-developer VS Code context, agent handoffs (e.g., `@researcher → @planner → @implementer`) operate at the A2A layer informally — context is forwarded through the chat UI without a formal protocol envelope. This is sufficient for single-process, single-developer use. Formal A2A (message envelopes, trace IDs, idempotency) becomes necessary when agents span process boundaries, network hops, or team collaboration. See ADR-0004 for details on the informal vs formal distinction and the upgrade path.
 
 ---
 
@@ -310,6 +330,21 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **When to use:** Tasks requiring dynamic, multi-step decision-making where the next action depends on previous observations; debugging or diagnostic tasks; tool-heavy workflows.  
 **Key consideration:** Reasoning steps consume tokens and add latency. Set a maximum number of reason-act iterations to prevent infinite loops.
 
+> **Design Rationale — Why this framework uses fixed procedures instead of ReAct (ref. ADR-0010)**
+>
+> ReAct is more adaptive than fixed-procedure agents but less predictable. In this feedback loop
+> system, predictability is the superior property: each agent run must produce a comparable,
+> reproducible output so that session-over-session improvement can be measured against a stable
+> baseline. ReAct's dynamic reason-act loops introduce output variability that would make that
+> measurement unreliable.
+>
+> Adaptability is achieved through the feedback loop itself — weekly rule updates and structured
+> session analysis — not through per-invocation dynamic reasoning.
+>
+> **Note:** Some tasks (e.g., open-ended codebase research) could genuinely benefit from ReAct's
+> adaptive probing. If you are considering ReAct for such a task, raise an ADR to assess the
+> auditability trade-off before introducing it. See ADR-0010 for the full decision record.
+
 ---
 
 #### Memory-Augmented Agent
@@ -323,7 +358,7 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 
 #### Tool and Agent Registry
 **What it is:** A centralised catalogue of available tools and agents — their identities, capabilities, input/output schemas, versioning, and health status. Agents discover and invoke capabilities through the registry.  
-**When to use:** Multi-agent systems with more than 3–4 agents or tool sets; systems that evolve over time with new capabilities added; enterprise deployments requiring governance of available capabilities.  
+**When to use:** Multi-agent systems with more than 3–4 agents or tool sets; systems that evolve over time with new capabilities added; enterprise deployments requiring governance of available capabilities. Introduce when the system reaches 5+ active agents OR 10+ active skills, whichever comes first.  
 **Key consideration:** The registry is a new single point of failure. Implement caching and failover. Enforce schema versioning to prevent breaking changes.
 
 ---
@@ -332,6 +367,16 @@ GitHub: <https://github.com/PacktPublishing/Agentic-Architectural-Patterns-for-B
 **What it is:** Structured hooks fired at key agent lifecycle events (task start, tool call, tool response, reasoning step, task end, error) that feed an observability pipeline — enabling tracing, logging, metrics, and cost tracking per agent invocation.  
 **When to use:** All production agentic systems. Non-negotiable for debugging, compliance, cost management, and performance optimisation.  
 **Key consideration:** Callback overhead adds latency. Use async emission where possible. Define a consistent event schema across all agents from day one.
+
+**ADK ↔ VS Code hook equivalence** *(verified against ADK 1.x — review if ADK major version changes)*
+
+| ADK Event | VS Code Hook | Schema notes |
+|---|---|---|
+| `on_agent_start` | `SessionStart` | ADK includes `trace_id`; VS Code does not (see ADR-0011) |
+| `on_tool_call` | `PreToolUse` | ADK has typed tool schema; VS Code passes stdin JSON |
+| `on_tool_response` | `PostToolUse` | Similar structure; both carry tool name and output |
+| `on_agent_end` | `SessionEnd` / `Stop` | VS Code has two variants (graceful vs. interrupted); ADK has one |
+| *(no equivalent)* | `PreCompact` / `PostCompact` | VS Code-specific; context compression has no ADK analogue |
 
 ---
 
