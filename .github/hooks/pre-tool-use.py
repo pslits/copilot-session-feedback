@@ -33,9 +33,23 @@ def normalise(value: str) -> str:
     return value.lower().replace("\\", "/")
 
 
-def check_file_operation(tool_input: dict, patterns: dict) -> str | None:
-    """Return a block reason string if the file operation matches a protected pattern."""
-    protected: list[str] = patterns.get("protected_files", [])
+_DEFAULT_REASON = "This operation is blocked by the security gate policy."
+_DEFAULT_NEXT = "Run the operation manually in your terminal if this is intentional."
+
+
+def _entry_fields(entry: "str | dict") -> tuple[str, str, str]:
+    """Return (pattern, reason, next_steps) from a string or dict entry."""
+    if isinstance(entry, str):
+        return entry, _DEFAULT_REASON, _DEFAULT_NEXT
+    pattern = entry.get("pattern", "")
+    reason = entry.get("reason", _DEFAULT_REASON)
+    next_steps = entry.get("next", _DEFAULT_NEXT)
+    return pattern, reason, next_steps
+
+
+def check_file_operation(tool_input: dict, patterns: dict) -> dict | None:
+    """Return a 3-field block message dict if the file operation matches a protected pattern."""
+    protected: list = patterns.get("protected_files", [])
     if not protected:
         return None
 
@@ -52,17 +66,22 @@ def check_file_operation(tool_input: dict, patterns: dict) -> str | None:
         return None
 
     norm_path = normalise(path_str)
-    for protected_pattern in protected:
-        norm_pattern = normalise(protected_pattern)
+    for entry in protected:
+        pattern, reason, next_steps = _entry_fields(entry)
+        norm_pattern = normalise(pattern)
         if norm_path == norm_pattern or norm_path.startswith(norm_pattern.rstrip("/") + "/"):
-            return f"path '{path_str}' matches protected pattern '{protected_pattern}'"
+            return {
+                "blocked": f"Attempted file operation on protected path '{path_str}'",
+                "reason": reason,
+                "next": next_steps,
+            }
 
     return None
 
 
-def check_terminal_command(tool_input: dict, patterns: dict) -> str | None:
-    """Return a block reason string if the command matches a dangerous pattern."""
-    dangerous: list[str] = patterns.get("dangerous_terminal", [])
+def check_terminal_command(tool_input: dict, patterns: dict) -> dict | None:
+    """Return a 3-field block message dict if the command matches a dangerous pattern."""
+    dangerous: list = patterns.get("dangerous_terminal", [])
     if not dangerous:
         return None
 
@@ -76,9 +95,14 @@ def check_terminal_command(tool_input: dict, patterns: dict) -> str | None:
         return None
 
     norm_cmd = normalise(command)
-    for pattern in dangerous:
+    for entry in dangerous:
+        pattern, reason, next_steps = _entry_fields(entry)
         if normalise(pattern) in norm_cmd:
-            return f"command matches dangerous pattern '{pattern}'"
+            return {
+                "blocked": f"Attempted to run a command matching dangerous pattern '{pattern}'",
+                "reason": reason,
+                "next": next_steps,
+            }
 
     return None
 
@@ -98,17 +122,18 @@ def main() -> None:
 
     patterns = load_patterns()
 
-    block_reason: str | None = None
+    block_msg: dict | None = None
 
     if tool_name in FILE_TOOLS:
-        block_reason = check_file_operation(tool_input, patterns)
+        block_msg = check_file_operation(tool_input, patterns)
     elif tool_name in TERMINAL_TOOLS:
-        block_reason = check_terminal_command(tool_input, patterns)
+        block_msg = check_terminal_command(tool_input, patterns)
 
-    if block_reason:
+    if block_msg:
         print(
-            f"BLOCKED by pre-tool-use security gate: {block_reason}.\n"
-            f"If this is intentional, run the command manually in your terminal.",
+            f"BLOCKED: {block_msg['blocked']}\n"
+            f"REASON:  {block_msg['reason']}\n"
+            f"NEXT:    {block_msg['next']}",
             file=sys.stderr,
         )
         sys.exit(2)
