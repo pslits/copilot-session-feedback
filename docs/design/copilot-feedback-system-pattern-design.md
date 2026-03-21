@@ -32,6 +32,15 @@ Session → Capture → Analyse → Document → Route → Validate
 - Skill files (`SKILL.md`) with bundled references
 - Hook configurations (JSON lifecycle callbacks)
 
+**Primary Interaction Mode:**
+
+This system is built around **Collaborative Co-piloting** (A&B, Ch. 8) as its foundational interaction
+context. Collaborative Co-piloting is the mode in which developer and agent work simultaneously, with the
+human retaining final authority over every decision. The feedback loop exists *because* the developer
+co-pilots with Copilot every day — the friction, corrections, and vocabulary gaps that feed the flywheel
+are all artefacts of that daily co-piloting experience. The loop is not a general improvement system; it
+is a co-piloting quality improvement system specifically.
+
 **Essential Constraints:**
 1. Must operate within GitHub Copilot's six VS Code extension surfaces — no external infrastructure required
 2. Human review is mandatory before any knowledge is promoted to permanent instructions (guard against encoding bad patterns)
@@ -75,7 +84,7 @@ All five tiers contributed at least one pattern. No tier was found to be entirel
 | **Tier 2 — Advanced** | 2 (Memory Management, Goal Setting) | Learning & Adaptation (subsumed by Flywheel), MCP (no protocol layer needed) |
 | **Tier 3 — Production** | 2 (Exception Handling, HITL) | RAG (no vector store / semantic retrieval) |
 | **Tier 4 — Enterprise** | 3 (Resource-Aware, Guardrails, Evaluation) | A2A (single instance), Reasoning (native to model), Prioritization (implicit in HITL P0–P3 matrix), Exploration (structured, not exploratory) |
-| **Tier 5 — Architectural** | 4 (GenAI Maturity Model, Lifecycle Callbacks, Self-Improvement Flywheel, Instruction Fidelity Auditing) | Hierarchical Orchestrator (pipeline-based, not hierarchical; adds complexity), Agent Router (rule-based routing, not LLM-based), Blackboard (no async collaboration), Parallel Execution Consensus (no multi-verification need), Circuit Breaker (no external service dependency), Secure Agent (covered by Guardrails), Collaborative Co-piloting (general model, not a design choice), ReAct (agents use fixed procedures), Tool & Agent Registry (too few agents), R⁵ (subsumed), Decision Audit Trail (subsumed), Human Delegates to Agent (subsumed), Single Agent Baseline (implicit in maturity model), Memory-Augmented Agent (merged) |
+| **Tier 5 — Architectural** | 4 (GenAI Maturity Model, Lifecycle Callbacks, Self-Improvement Flywheel, Instruction Fidelity Auditing) | Hierarchical Orchestrator (pipeline-based, not hierarchical; adds complexity), Agent Router (rule-based routing, not LLM-based), Blackboard (no async collaboration), Parallel Execution Consensus (no multi-verification need), Circuit Breaker (no external service dependency), Secure Agent (covered by Guardrails), Collaborative Co-piloting (foundational context — the interaction mode the feedback loop serves; not a pipeline component), ReAct (agents use fixed procedures), Tool & Agent Registry (too few agents), R⁵ (subsumed), Decision Audit Trail (subsumed), Human Delegates to Agent (subsumed), Single Agent Baseline (implicit in maturity model), Memory-Augmented Agent (merged) |
 
 ### "Lightweight Enough to Use" Conflicts Flagged
 
