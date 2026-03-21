@@ -26,6 +26,13 @@ None of these require external infrastructure. However, they represent Level 4â€
 and should be deferred until the current manual loop is validated and stable. This ADR documents
 the aspiration for the adoption roadmap's Ongoing phase.
 
+**Cloud-agent extension (concrete scenario â€” ADR-0016):** When an issue is assigned to the
+GitHub Copilot coding agent, all work runs in a GitHub-hosted cloud environment and no local
+hooks fire. ADR-0016 documents a hybrid path: a manual runbook step for immediate use and a
+deferred GitHub Actions harvest workflow that appends a minimal row to
+`sessions/metrics/sessions.jsonl` on each cloud Copilot PR merge. The data-residency policy
+for that workflow is covered by ADR-0017.
+
 ---
 
 ## Decision

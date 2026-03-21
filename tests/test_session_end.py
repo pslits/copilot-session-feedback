@@ -91,6 +91,19 @@ class TestSessionEndEdgeCases:
         records = _read_records(tmp_path)
         assert records[0]["duration_seconds"] is None
 
+    def test_duration_from_persisted_start_ts_when_missing_in_payload(self, tmp_path):
+        """session-end.py must compute duration from sessions/.current_start_ts when
+        the SessionEnd payload does not contain start_ts (the normal VS Code case)."""
+        start_ts_file = tmp_path / Path("sessions") / ".current_start_ts"
+        start_ts_file.parent.mkdir(parents=True, exist_ok=True)
+        start_ts_file.write_text("2026-03-20T10:00:00Z", encoding="utf-8")
+        # Payload has no start_ts — simulates VS Code SessionEnd event
+        payload = json.dumps({"session_id": "s-fallback"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert records[0]["duration_seconds"] is not None
+        assert records[0]["duration_seconds"] >= 0
+
     def test_always_exits_zero_on_bad_json(self, tmp_path):
         result = run_hook("session-end.py", "{{bad json", tmp_path)
         assert result.returncode == 0

@@ -164,6 +164,41 @@ After escalation:
 
 ---
 
+## Cloud Copilot Session Harvest
+
+When an issue is assigned to the GitHub Copilot coding agent, work runs in a GitHub-hosted
+cloud environment. No local VS Code hooks fire, so nothing is written to `sessions/`
+automatically. The `copilot-session-harvest` workflow handles this automatically.
+
+### How It Works
+
+The workflow (`.github/workflows/copilot-session-harvest.yml`) triggers whenever a
+`copilot/*` branch PR is merged. It:
+
+1. Checks out the base branch.
+2. Derives a `session_id` from the branch name
+   (e.g. `copilot/issue-26` → `copilot-issue-26-<YYYYMMDD>`).
+3. Appends one row to `sessions/metrics/sessions.jsonl` using the same schema as the VS Code
+   `session-end.py` hook (`session_id`, `trace_id`, `start_ts`, `end_ts`,
+   `duration_seconds`, `turn_count`).
+4. Commits and pushes the updated file.
+
+No manual steps are required for metrics collection.
+
+### Troubleshooting the Harvest Workflow
+
+| Problem | Likely Cause | Resolution |
+|---|---|---|
+| Workflow does not trigger after PR merge | PR branch does not start with `copilot/` | Verify the branch name; Copilot-created branches follow the `copilot/issue-<n>` pattern. |
+| Workflow triggers but push step fails | Branch protection requires PRs for all pushes | Add a bypass rule for `github-actions[bot]` in the branch protection settings. |
+| `sessions/metrics/sessions.jsonl` not updated | Workflow run skipped (already up to date) | Check the workflow run log; this is expected if git detects no diff. |
+
+> **Background:** ADR-0016 records the decision to implement this automated approach.
+> ADR-0017 (implemented and merged) defines the data-residency policy:
+> `sessions/metrics/sessions.jsonl` is the only file committed; transcripts remain local-only.
+
+---
+
 ## Related Documents
 
 - [Label Taxonomy](labels.md)
@@ -171,3 +206,5 @@ After escalation:
 - [ADR Template](../adr/0000-template.md)
 - [Audit Checklist](audit.md)
 - [Project Fields](project-fields.md)
+- [ADR-0016: Cloud Copilot Session Harvest Strategy](../adr/0016-cloud-copilot-session-harvest.md)
+- [ADR-0017: Session Data-Residency Policy](../adr/0017-session-data-residency.md)

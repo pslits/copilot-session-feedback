@@ -1,6 +1,7 @@
 """Regression tests for .github/hooks/session-start.py — orientation metadata injection."""
 
 import json
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ import pytest
 from helpers import UUID4_RE, run_hook
 
 _TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
+_START_TS_PATH = Path("sessions") / ".current_start_ts"
 
 
 class TestSessionStartOutput:
@@ -62,6 +64,31 @@ class TestSessionStartOutput:
         assert ctx_trace_id is not None
         file_trace_id = (tmp_path / _TRACE_ID_PATH).read_text().strip()
         assert ctx_trace_id == file_trace_id
+
+    def test_start_ts_file_created(self, tmp_path):
+        """session-start.py must persist the start timestamp to sessions/.current_start_ts."""
+        run_hook("session-start.py", "{}", tmp_path)
+        start_ts_file = tmp_path / _START_TS_PATH
+        assert start_ts_file.exists(), "sessions/.current_start_ts was not created"
+
+    def test_start_ts_is_valid_iso8601(self, tmp_path):
+        """The persisted start timestamp must be a valid ISO 8601 string."""
+        run_hook("session-start.py", "{}", tmp_path)
+        content = (tmp_path / _START_TS_PATH).read_text().strip()
+        # Should parse without error
+        datetime.fromisoformat(content.replace("Z", "+00:00"))
+
+    def test_start_ts_matches_context(self, tmp_path):
+        """The session_opened value in additionalContext must equal the persisted start_ts."""
+        result = run_hook("session-start.py", "{}", tmp_path)
+        ctx = json.loads(result.stdout)["additionalContext"]
+        ctx_ts = None
+        for line in ctx.splitlines():
+            if line.startswith("session_opened: "):
+                ctx_ts = line.split(": ", 1)[1].strip()
+        assert ctx_ts is not None
+        file_ts = (tmp_path / _START_TS_PATH).read_text().strip()
+        assert ctx_ts == file_ts
 
 
 class TestSessionStartGracefulDegradation:
