@@ -1,7 +1,7 @@
 # ADR-0001: Level 5 Autonomous Maturity — Add Aspirational Placeholder to Adoption Roadmap
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#9](https://github.com/pslits/copilot-session-feedback/issues/9)
 Decider: @pslits
 Risk Tier: low
@@ -54,11 +54,15 @@ constraint, while describing the capability threshold that would justify explori
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add Level 5 entry to adoption-roadmap.instructions.md | @pslits | 2026-04-03 | Open |
-| Reference ADR-0001 in the roadmap file | @pslits | 2026-04-03 | Open |
+| Add Level 5 entry to adoption-roadmap.instructions.md | @pslits | 2026-04-03 | Done |
+| Reference ADR-0001 in the roadmap file | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Added an aspirational Level 5 — Autonomous row to the Adoption Phases table in
+`adoption-roadmap.instructions.md`, clearly marked as out of scope for the current
+VS Code-native constraint. A friction checkpoint for the Ongoing → Level 5 transition
+was added to the Friction Checkpoints table. A reference to this ADR was added at the
+end of the Planning Rules section.
