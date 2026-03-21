@@ -113,6 +113,34 @@ Ask exactly:
 
 ---
 
+## Contract
+
+*Ref: [ADR-0003](../../docs/adr/0003-agent-input-output-schemas.md)*
+
+### Input
+
+| Item | Format | Required |
+|------|--------|----------|
+| Researcher handoff table | Markdown table: File, Line, Finding, Relevance, Lens | Yes |
+| Task description or goal | Plain text, one sentence minimum | Yes |
+
+### Output
+
+| Item | Format | Required |
+|------|--------|----------|
+| Current State Summary | Markdown prose — facts only, no proposals | Yes |
+| Reasoning Summary | Markdown prose — selected approaches and justifications | Yes |
+| Phased implementation plan | Markdown file saved to `sessions/plans/YYYY-MM-DD-<slug>.md` | Yes |
+
+### Failure Signal
+
+A handoff is incomplete when any of the following is true:
+- No plan file is saved under `sessions/plans/`.
+- The plan file is missing phases, ordered steps, preconditions, or success criteria.
+- The Human-in-the-Loop gate was not passed before handoff to `@implementer` (gate is passed when the human replies with "Approve" or equivalent explicit confirmation in the conversation).
+
+---
+
 ## Constraints
 
 - You are **read-only** for source code. The only file you create is the plan document.

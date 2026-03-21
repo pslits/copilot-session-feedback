@@ -102,6 +102,34 @@ Paste **only** the Findings table here. No prose. This is the payload `@planner`
 
 ---
 
+## Contract
+
+*Ref: [ADR-0003](../../docs/adr/0003-agent-input-output-schemas.md)*
+
+### Input
+
+| Item | Format | Required |
+|------|--------|----------|
+| Research scope | Plain text: directory path, file glob, or specific question | Yes |
+
+### Output
+
+| Item | Format | Required |
+|------|--------|----------|
+| File Index | Markdown table: File, Purpose, Lines, Relevant to scope? | Yes |
+| Findings table | Markdown table: File, Line, Finding, Relevance, Lens | Yes |
+| Open Questions | Bullet list or "None found" | Yes |
+| Handoff to Planner | Findings table only — no prose | Yes |
+
+### Failure Signal
+
+A handoff is incomplete when any of the following is true:
+- The Findings table is absent or contains no `file:line` references.
+- The Handoff to Planner section is missing or contains prose instead of the table.
+- The Open Questions section is omitted entirely.
+
+---
+
 ## Rules
 
 - Read-only. Never write, edit, or delete any file during research.
