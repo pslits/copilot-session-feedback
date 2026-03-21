@@ -1,7 +1,7 @@
 # ADR-0013: Explore Partial Automation of Feedback Collection (Aspirational)
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#21](https://github.com/pslits/copilot-session-feedback/issues/21)
 Decider: @pslits
 Risk Tier: low
@@ -68,11 +68,17 @@ No implementation work is approved at this time. This ADR is a planning record t
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add automated feedback collection entry to adoption roadmap Ongoing phase | @pslits | 2026-04-03 | Open |
-| Note stability prerequisite (8 weeks manual loop) in the entry | @pslits | 2026-04-03 | Open |
+| Add automated feedback collection entry to adoption roadmap Ongoing phase | @pslits | 2026-04-03 | Done |
+| Note stability prerequisite (8 weeks manual loop) in the entry | @pslits | 2026-04-03 | Done |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+An 'Automated Feedback Collection (Aspirational)' section was added to
+`.github/instructions/adoption-roadmap.instructions.md`. The section names the three
+VS Code-native automation options (correction-pattern scanner, rule-drift tagger,
+rules-in-effect snapshot), states the 8-week stable manual loop prerequisite, and
+links back to this ADR. The Ongoing phase row in the adoption phases table was also
+extended with an aspirational Level 5 entry referencing the new section.
+No implementation was performed.

@@ -1,7 +1,7 @@
 # ADR-0015: Document ADK-to-VS Code Hook Equivalence
 
 Date: 2026-03-20
-Status: Proposed
+Status: Accepted
 HITL Issue: [#23](https://github.com/pslits/copilot-session-feedback/issues/23)
 Decider: @pslits
 Risk Tier: low
@@ -68,12 +68,15 @@ Equivalence mapping:
 
 | Action | Owner | Due Date | Status |
 |---|---|---|---|
-| Add equivalence table to Lifecycle Callbacks catalogue entry | @pslits | 2026-04-03 | Open |
-| Note ADK version the table was verified against | @pslits | 2026-04-03 | Open |
+| Add equivalence table to Lifecycle Callbacks catalogue entry | @pslits | 2026-04-03 | Done |
+| Note ADK version the table was verified against | @pslits | 2026-04-03 | Done |
 | Add review trigger for the equivalence table to monthly audit prompt | @pslits | 2026-04-03 | Open |
 
 ---
 
 ## Outcome (complete after execution)
 
-_To be filled after the change is made._
+Equivalence table added to the Lifecycle Callbacks / AgentOps entry in
+`.github/skills/agentic-patterns/references/patterns-catalogue.md`. The table maps all five ADK
+lifecycle events to their VS Code hook counterparts, notes the `trace_id` schema gap (ADR-0011),
+and is marked as verified against ADK 1.x with a review trigger for major version changes.

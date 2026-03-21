@@ -160,3 +160,18 @@ When all approved phases are complete:
 - Keep exactly one TODO step in progress at a time.
 - If required inputs are missing, stop and request the minimum missing information.
 - When creating or modifying a knowledge artifact (`*.instructions.md`, `copilot-instructions.md`, `*.prompt.md`, `*.agent.md`, `SKILL.md`), always load the corresponding writing skill first and follow its procedure as the structural authority.
+
+---
+
+## Fallback Recovery
+
+Use the following procedure when `@implementer` stalls mid-plan.
+
+**Failure mode:** `@implementer` stops partway through execution, leaving one or more plan steps incomplete and the TODO list partially checked.
+
+**Recovery steps:**
+1. Identify the last fully completed step from the TODO list and the Step Results table in the agent's output.
+2. Verify that the preconditions for the next incomplete step are still satisfied (re-read the plan file if needed).
+3. Re-invoke `@implementer` with the original approved plan file path and the explicit instruction: "Resume from step N — all prior steps are complete."
+4. If the stall was caused by a failed success check, apply the Step 3 reflection loop (what failed, root cause, fix options) before resuming.
+5. If the stall cannot be resolved after one re-invocation attempt, escalate to a HITL decision: report the blocker with the failed step number, the check that failed, and the last recorded result. This threshold exists to prevent loops — do not retry silently beyond a single recovery attempt.
