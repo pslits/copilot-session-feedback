@@ -33,6 +33,21 @@
             "next": "Use 'git push --force-with-lease' for a safer alternative, or run manually if you are certain."
         },
         {
+            "pattern": "git push origin main",
+            "reason": "Pushing directly to main bypasses the PR review workflow required by this project.",
+            "next": "Create a feature branch, commit your changes there, and open a PR instead of pushing directly to main."
+        },
+        {
+            "pattern": "git push -u origin main",
+            "reason": "Pushing directly to main bypasses the PR review workflow required by this project.",
+            "next": "Create a feature branch, commit your changes there, and open a PR instead of pushing directly to main."
+        },
+        {
+            "pattern": "git push --set-upstream origin main",
+            "reason": "Pushing directly to main bypasses the PR review workflow required by this project.",
+            "next": "Create a feature branch, commit your changes there, and open a PR instead of pushing directly to main."
+        },
+        {
             "pattern": "DROP TABLE",
             "reason": "This SQL statement permanently deletes a database table and all its data.",
             "next": "Run the statement manually in your database client after confirming the target table."
