@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # pre-compact.py — export full context snapshot to sessions/precompact/ before compression
+# Assumes CWD == repository root (set automatically by VS Code hook runner).
 
 import json
 import sys
@@ -37,7 +38,7 @@ def main() -> None:
 
     # Write the snapshot — include the raw payload plus capture timestamp and trace ID
     snapshot = {
-        "captured_at": f"{timestamp}",
+        "captured_at": timestamp,
         "session_id": session_id,
         "trace_id": read_trace_id(),
         "payload": payload,

@@ -1,5 +1,5 @@
 ---
-applyTo: ".github/hooks/stop.json,.github/hooks/pre-tool-use.json,.github/hooks/post-tool-use.json,.github/hooks/session-start.json,.github/hooks/pre-compact.json,.github/hooks/post-compact.json"
+applyTo: ".github/hooks/stop.json,.github/hooks/pre-tool-use.json,.github/hooks/post-tool-use.json,.github/hooks/session-start.json,.github/hooks/pre-compact.json,.github/hooks/post-compact.json,.github/hooks/session-end.json,.github/hooks/notification.json"
 ---
 
 # Hook JSON Format Rules
@@ -52,6 +52,11 @@ When any hook script exceeds the budget or encounters an unrecoverable error, ex
 session.
 Reason: exit 2 allows the agent to log and surface the issue without preventing session
 continuation — hook failures are advisory, not fatal.
+
+**Exception — hooks that must never block the session:** `session-end.py` and `post-compact.py`
+always exit 0 even on error, because blocking a session close or post-compaction would leave
+the agent in an undefined state. The exit-2 soft-block contract applies only to hooks with a
+blocking role: `pre-tool-use.py` and `stop.py`.
 
 ### Rules for external calls in hooks
 

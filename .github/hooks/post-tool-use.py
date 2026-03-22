@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 # post-tool-use.py — auto-format written files using the project formatter
+# Assumes CWD == repository root (set automatically by VS Code hook runner).
 
 import json
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+from _trace import increment_turn_count  # noqa: E402
 
 # Only act on these tool names — all others are non-file-write events.
 WRITE_TOOLS = {"write_file", "edit_file", "create_file"}
@@ -27,7 +31,8 @@ FORMATTER_MAP = {
 def get_file_path(tool_input: dict) -> str:
     """Extract the file path from the tool input dict (key name varies by tool)."""
     return (
-        tool_input.get("path")
+        tool_input.get("filePath")
+        or tool_input.get("path")
         or tool_input.get("file_path")
         or tool_input.get("target_file")
         or ""
@@ -66,6 +71,9 @@ def run_formatter(cmd: list[str], file_path: str) -> None:
 
 
 def main() -> None:
+    # Increment the per-session tool-call counter on every PostToolUse event.
+    increment_turn_count()
+
     # Read stdin payload.
     try:
         payload = json.loads(sys.stdin.read())

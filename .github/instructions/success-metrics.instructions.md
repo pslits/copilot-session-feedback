@@ -36,7 +36,10 @@ indicators.
 ## Collection Notes
 
 - **SessionEnd hook** auto-collects timestamps into `sessions/metrics/sessions.jsonl`.
-  This file may not exist until Feature #6 (SessionEnd hook) is implemented.
+  Feature #6 (`session-end.py`) is implemented; the file exists with data from March 2026 onwards.
+- **Turn count** is tracked automatically by `post-tool-use.py`, which increments
+  `sessions/.current_turn_count` on every tool-use event. `session-end.py` reads and
+  resets this counter at session close.
 - **Corrections per session** is the single manual tally — no form, no dashboard.
   Note the count at session end; one number per session.
 - **Stale rule count** is auto-calculated by running `/audit` monthly.

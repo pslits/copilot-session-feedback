@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # stop.py — archive session transcript to sessions/YYYY-MM-DD/<session_id>/
+# Assumes CWD == repository root (set automatically by VS Code hook runner).
 
 import json
 import shutil

@@ -6,6 +6,7 @@
 #
 # Requirements: Python 3.8+; stdlib only. Set COPILOT_WEBHOOK_URL in the
 #   environment to enable forwarding; if absent the hook exits 0 silently.
+# Assumes CWD == repository root (set automatically by VS Code hook runner).
 
 import json
 import os

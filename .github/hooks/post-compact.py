@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # post-compact.py — re-inject critical rules into context after compression
+# Assumes CWD == repository root (set automatically by VS Code hook runner).
 
 import json
 import sys

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # pre-tool-use.py — security gate: block protected file deletion and dangerous terminal commands
+# Assumes CWD == repository root (set automatically by VS Code hook runner).
 
 import json
 import os
@@ -9,11 +10,14 @@ from pathlib import Path
 
 PATTERNS_FILE = Path(".github/security-patterns.json")
 
-# Tools that operate on files.
-FILE_TOOLS = {"write_file", "edit_file", "delete_file", "rename_file", "move_file"}
+# Tools that operate on files (write/delete/rename).
+FILE_TOOLS = {"write_file", "edit_file", "delete_file", "rename_file", "move_file", "create_file"}
 
 # Tools that run shell/terminal commands.
 TERMINAL_TOOLS = {"run_terminal", "run_in_terminal", "bash", "powershell"}
+
+# Tools that read file content — checked against credential_access patterns.
+CREDENTIAL_ACCESS_TOOLS = {"read_file", "open_file", "view_file", "cat"}
 
 
 def load_patterns() -> dict:
@@ -107,6 +111,35 @@ def check_terminal_command(tool_input: dict, patterns: dict) -> dict | None:
     return None
 
 
+def check_credential_access(tool_input: dict, patterns: dict) -> dict | None:
+    """Return a 3-field block message dict if the file path matches a credential access pattern."""
+    credential_patterns: list = patterns.get("credential_access", [])
+    if not credential_patterns:
+        return None
+
+    path_str: str = (
+        tool_input.get("filePath")
+        or tool_input.get("path")
+        or tool_input.get("file_path")
+        or tool_input.get("target")
+        or ""
+    )
+    if not path_str:
+        return None
+
+    norm_path = normalise(path_str)
+    for entry in credential_patterns:
+        pattern, reason, next_steps = _entry_fields(entry)
+        if normalise(pattern) in norm_path or norm_path == normalise(pattern):
+            return {
+                "blocked": f"Attempted to access credential file '{path_str}'",
+                "reason": reason,
+                "next": next_steps,
+            }
+
+    return None
+
+
 def main() -> None:
     # Read stdin payload.
     try:
@@ -126,8 +159,12 @@ def main() -> None:
 
     if tool_name in FILE_TOOLS:
         block_msg = check_file_operation(tool_input, patterns)
+        if not block_msg:
+            block_msg = check_credential_access(tool_input, patterns)
     elif tool_name in TERMINAL_TOOLS:
         block_msg = check_terminal_command(tool_input, patterns)
+    elif tool_name in CREDENTIAL_ACCESS_TOOLS:
+        block_msg = check_credential_access(tool_input, patterns)
 
     if block_msg:
         print(

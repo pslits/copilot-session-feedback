@@ -1,3 +1,11 @@
+# Copilot Instructions
+
+<!-- # PRIORITY: HIGH: Commit header ≤50 chars, imperative verb (Add/Fix/Remove), Conventional Commits type(scope): summary -->
+<!-- # PRIORITY: HIGH: Every AI-assisted commit must add footer: Co-Authored-By: GitHub Copilot <copilot@github.com> -->
+<!-- # PRIORITY: HIGH: File headers by type — .py: shebang+one-line comment; .md: H1+sentence; agents/prompts/skills: YAML frontmatter -->
+<!-- # PRIORITY: HIGH: Knowledge artifact caps — copilot-instructions.md≤200 lines; *.instructions.md≤100 lines; *.prompt.md≤150 lines -->
+<!-- # PRIORITY: HIGH: Hooks exit 0=success, 2=soft-block; SessionEnd+PostCompact always exit 0 (must not block session) -->
+
 ## Commit Message Guidelines
 
 Keep commit messages clear, consistent and machine-friendly so changelogs and code review history are useful.
@@ -58,79 +66,11 @@ This goes in the footer section, after any `Fixes #` or `Refs #` lines.
 ---
 ## File Header Conventions
 
-Every file type in this repo follows a specific header pattern. Apply these rules
-when creating new files or reviewing generated output.
-
-### GitHub Actions Workflows (`.github/workflows/*.yml`)
-
-Start with `name:`, immediately followed by a one- or two-line comment that states
-the trigger event and the workflow's purpose. No other preamble.
-
-```yaml
-name: HITL Escalation
-
-# Runs hourly to detect SLA breaches on issues waiting for a human decision.
-# Can also be triggered manually for immediate checks.
-on:
-```
-
-### Shell Scripts (`.github/scripts/*.sh`)
-
-Start with the shebang, then a comment block containing: filename and one-sentence
-description, blank comment, Usage section, blank comment, Requirements line.
-
-```bash
-#!/usr/bin/env bash
-# sync-labels.sh — create or update all HITL labels defined in docs/hitl/labels.md.
-#
-# Usage:
-#   ./.github/scripts/sync-labels.sh [--repo OWNER/REPO] [--delete-unlisted]
-#
-# Requirements: gh CLI authenticated (gh auth login).
-```
-
-### PowerShell Scripts (`.github/scripts/*.ps1`)
-
-Same structure as shell scripts but without a shebang. First line is
-`# filename — description`.
-
-```powershell
-# sync-labels.ps1 — create or update all HITL labels defined in docs/hitl/labels.md.
-#
-# Usage:
-#   .\..\scripts\sync-labels.ps1 [-Repo OWNER/REPO] [-DeleteUnlisted] [-DryRun]
-#
-# Requirements: gh CLI authenticated (gh auth login).
-```
-
-### Markdown Documents (`docs/**/*.md`, `sessions/**/*.md`)
-
-Start with an H1 title (`#`), then a single plain-text sentence describing the
-document's purpose. No frontmatter, no metadata block.
-
-```markdown
-# HITL Operator Runbook
-
-This runbook is the primary reference for anyone involved in operating the
-Human-in-the-Loop (HITL) intervention workflow.
-```
-
-### Agent, Skill, and Prompt Files (`*.agent.md`, `*.prompt.md`, `SKILL.md`)
-
-Use YAML frontmatter with at minimum `name` and `description`. The `description`
-field must be a single string that is rich enough for tool/agent routing (include
-trigger phrases where relevant). No additional comment header outside the frontmatter.
-
-```yaml
----
-
-## File Header Conventions
-
 Every file in this repository must begin with a header that declares its purpose. Apply the rule for the relevant file type below.
 
 ### GitHub Actions Workflows (`.github/workflows/*.yml`)
 
-After `name: <Title>`, leave one blank line, then add one or more `#` comment lines describing what the workflow does and when it runs. The `on:` key follows immediately after the comment block.
+After `name: <Title>`, leave one blank line, then add one or more `#` comment lines describing what the workflow does and when it runs. The `on:` key follows immediately.
 
 ```yaml
 name: HITL Gate
@@ -142,13 +82,27 @@ on:
     types: [created]
 ```
 
+### Shell Scripts (`.github/scripts/*.sh`)
+
+Start with the shebang, then a comment block: filename and one-sentence description, blank comment, Usage section, blank comment, Requirements line.
+
+```bash
+#!/usr/bin/env bash
+# sync-labels.sh — create or update all HITL labels defined in docs/hitl/labels.md.
+#
+# Usage:
+#   ./.github/scripts/sync-labels.sh [--repo OWNER/REPO] [--delete-unlisted]
+#
+# Requirements: gh CLI authenticated (gh auth login).
+```
+
 ### Python Scripts (`*.py`)
 
 Start with the `#!/usr/bin/env python3` shebang, followed immediately by a `# <filename> — <one-sentence description>` comment.
 
 ```python
 #!/usr/bin/env python3
-# sync-labels.py — create or update all HITL labels defined in docs/hitl/labels.md.
+# session-start.py — inject project metadata into session context.
 ```
 
 ### PowerShell Scripts (`*.ps1`)
@@ -157,19 +111,27 @@ Start with a `# <filename> — <one-sentence description>` comment (no shebang r
 
 ```powershell
 # sync-labels.ps1 — create or update all HITL labels defined in docs/hitl/labels.md.
+#
+# Usage:
+#   .\..\scripts\sync-labels.ps1 [-Repo OWNER/REPO] [-DeleteUnlisted] [-DryRun]
+#
+# Requirements: gh CLI authenticated (gh auth login).
 ```
 
 ### Markdown Documents (`*.md`)
 
-Start with a top-level ATX heading (`# Title`) as the very first line.
+Start with a top-level ATX heading (`# Title`) as the very first line, then a single plain-text sentence describing the document's purpose.
 
 ```markdown
-# HITL Label Taxonomy
+# HITL Operator Runbook
+
+This runbook is the primary reference for anyone involved in operating the
+Human-in-the-Loop (HITL) intervention workflow.
 ```
 
-### Agent, Skill, and Prompt Frontmatter Files (`.agent.md`, `SKILL.md`, `.prompt.md`)
+### Agent, Skill, and Prompt Files (`*.agent.md`, `*.prompt.md`, `SKILL.md`)
 
-Begin with a YAML frontmatter block (`---`) containing at minimum `name` and `description` fields.
+Begin with a YAML frontmatter block (`---`) containing at minimum `name` and `description` fields. The description must be rich enough for tool/agent routing. No comment header outside the frontmatter.
 
 ```yaml
 ---

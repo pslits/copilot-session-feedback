@@ -1,7 +1,7 @@
 ---
 name: research
 description: Read-only codebase research to map the workspace before making changes. Use at the start of any RPI workflow before planning or implementing.
-agent: agent
+agent: researcher
 tools: [read, search]
 ---
 

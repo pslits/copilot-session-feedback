@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only fire for merged PRs from copilot/* branches
     if: |
-      github.event.pull_request.merged == true &&
+      github.event.pull_request.merged &&
       startsWith(github.event.pull_request.head.ref, 'copilot/')
     permissions:
       contents: write
@@ -76,5 +76,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore(metrics): add cloud Copilot session record for PR #${{ github.event.pull_request.number }}"
-            git push
+            git push || { echo "::warning::git push failed — metrics record not persisted"; exit 0; }
           fi

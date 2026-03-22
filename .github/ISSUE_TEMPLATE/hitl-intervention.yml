@@ -85,7 +85,11 @@ body:
     id: deadline
     attributes:
       label: Deadline / SLA
-      description: ISO 8601 datetime by which a human decision is required (e.g. 2026-03-15T18:00Z).
+      description: >-
+        UTC datetime by which a human decision is required.
+        Must end in `Z` (e.g. `2026-03-15T18:00Z`). The escalation workflow
+        only matches values ending in Z — offsets like +01:00 will not trigger
+        an automatic escalation.
       placeholder: "YYYY-MM-DDTHH:MMZ"
     validations:
       required: true

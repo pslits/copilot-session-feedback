@@ -55,7 +55,8 @@ jobs:
               }
             }
 
-            const adrPath = `docs/adr/XXXX-${issue.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50)}.md`;
+            // ADR number must be assigned manually; use the next sequential number from docs/adr/
+            const adrPath = `docs/adr/<ADR-NUMBER>-${issue.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50)}.md`;
 
             await github.rest.issues.createComment({
               owner, repo,

@@ -1,3 +1,9 @@
+[project]
+name = "copilot-session-feedback"
+version = "0.1.0"
+description = "GitHub Copilot session-to-knowledge feedback loop utilities and hooks."
+requires-python = ">=3.11"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["tests"]

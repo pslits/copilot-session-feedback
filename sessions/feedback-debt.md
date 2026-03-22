@@ -5,14 +5,15 @@ promoted to rules or artifacts.
 
 ## Health Check
 
-- Open items: 1 / 5 (target: ≤ 5)
+- Open items: 2 / 5 (target: ≤ 5)
 - Oldest open item: ADR-0016 review
 
 ## Open Items
 
-| ID | Observation | Pattern triggered | Sessions seen | Priority | Status | Linked artifact |
-|----|-------------|-------------------|---------------|----------|--------|-----------------|
-| FD-001 | Self-learning loop is incomplete: `sessions.jsonl` captures timing and turn-count but not **corrections data** (lens, mistake, rule change) nor **rule attribution** (which `copilot-instructions.md` rule was added as a result). Without these two fields, "corrections per session" can only be tallied manually and recurrence cannot be detected automatically. | Lens 1 — Recurring Correction | 1 | P1 | Open | New ADR + `corrections.jsonl` schema; see ADR-0016. Proposed: define schema with `session_id`, `lens` (1–4), `description`, `rule_ref` and update Stop hook to prompt for structured input rather than free-text. |
+| ID | Observation | Entry path | Sessions seen | Priority | Status | Linked artifact |
+|----|-------------|------------|---------------|----------|--------|-----------------|
+| FD-001 | `sessions.jsonl` does not capture **corrections data** — the structured fields `lens` (1–4), `mistake`, and `rule_change` that would allow automatic recurrence detection. Without this field, "corrections per session" can only be tallied manually. | Direct report | 1 | P1 | Open | New schema: add `corrections` array to session record; update Stop hook to prompt for structured input rather than free-text. |
+| FD-002 | `sessions.jsonl` does not capture **rule attribution** — which `copilot-instructions.md` rule was added or changed as a result of a session. Without `rule_ref`, it is impossible to trace knowledge provenance automatically. | Direct report | 1 | P2 | Open | Same schema work as FD-001; add `rule_ref` field alongside `corrections` array. |
 
 ## Closed Items (last 30 days)
 
@@ -22,6 +23,11 @@ promoted to rules or artifacts.
 ---
 
 ## Usage Guide
+
+**Two valid entry paths for new items:**
+
+1. **Direct report** — Add a row immediately when you observe a gap or friction point, even if it has only surfaced once. Set `Entry path` to `Direct report`. Do not assign a lens yet — that requires seeing the issue in at least two sessions.
+2. **Lens analysis** — After running `/compact` and analysing findings through the four diagnostic lenses, assign the matching lens number (1–4) as the `Entry path` (e.g. `Lens 1 — Recurring Correction`). This path confirms the issue is recurring and promotion-ready.
 
 **Adding an item:** Add a row to Open Items any session where a finding is not actioned
 immediately. Use the next sequential numeric ID.
