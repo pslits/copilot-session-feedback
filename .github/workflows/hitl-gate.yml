@@ -142,7 +142,7 @@ jobs:
                 '',
                 `@${actor} has flagged this issue as requiring additional information.`,
                 '',
-                ...(question ? [`**Question:** ${question}`, ''] : []),
+                ...(question ? [`**Question:** ${question}`, '', `@github-copilot ${question}`, ''] : []),
                 'Please update the issue body or reply with the requested information. Remove the `event:need-info` label once satisfied.',
               ].join('\n'));
               return;
