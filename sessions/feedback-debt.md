@@ -12,7 +12,7 @@ promoted to rules or artifacts.
 
 | ID | Observation | Entry path | Sessions seen | Priority | Status | Linked artifact |
 |----|-------------|------------|---------------|----------|--------|-----------------|
-| FD-004 | **MCP git tools bypass the security gate** — `mcp_gitkraken_git_add_or_commit` and `mcp_gitkraken_git_push` are not in `TERMINAL_TOOLS` in `pre-tool-use.py`, so `security-patterns.json` patterns (including the `git push origin main` block added for FD-003) never fire for MCP tool calls. Agent committed and attempted to push directly to `main` this session using the MCP git tool, bypassing the hook entirely. Secondary gap: no guard prevents `git commit` directly on `main` even via terminal. | Lens 4 — Quality Guardrail | 1 | Open | Extend `pre-tool-use.py` to also inspect MCP tool calls (tool name + input fields); add `mcp_gitkraken_*` to checked tool set; add `main`-branch commit guard to `security-patterns.json`. |
+| FD-004 | **MCP git tools bypass the security gate** — `mcp_gitkraken_git_add_or_commit` and `mcp_gitkraken_git_push` are not in `TERMINAL_TOOLS` in `pre-tool-use.py`, so `security-patterns.json` patterns (including the `git push origin main` block added for FD-003) never fire for MCP tool calls. Agent committed and attempted to push directly to `main` this session using the MCP git tool, bypassing the hook entirely. Secondary gap: no guard prevents `git commit` directly on `main` even via terminal. | Lens 4 — Quality Guardrail | 2 ⚠️ Lens 1 ready | P1 | Open | Extend `pre-tool-use.py` to also inspect MCP tool calls (tool name + input fields); add `mcp_gitkraken_*` to checked tool set; add `main`-branch commit guard to `security-patterns.json`. |
 
 ## Closed Items (last 30 days)
 
