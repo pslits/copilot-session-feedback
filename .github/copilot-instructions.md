@@ -1,3 +1,7 @@
+<!-- REVIEW(R-24): No H1 title at file start. The Markdown header convention defined
+     within this file requires "# Title" as the very first line. This file opens with ##.
+     Fix: Add "# Copilot Instructions" as line 1, or explicitly exempt this file from
+     the rule in the Knowledge Artifact Size Budgets table. -->
 ## Commit Message Guidelines
 
 Keep commit messages clear, consistent and machine-friendly so changelogs and code review history are useful.
@@ -124,6 +128,13 @@ trigger phrases where relevant). No additional comment header outside the frontm
 ```yaml
 ---
 
+<!-- REVIEW(R-04): DUPLICATE HEADING — this is a second "## File Header Conventions"
+     section. The identical heading first appears ~100 lines above. The two copies diverge:
+     copy 1 has "Shell Scripts (.sh)" and examples; copy 2 has "Python Scripts (.py)"
+     instead — so neither copy is complete. Any agent reading sequentially encounters
+     conflicting or repeated rules, and the Python shebang convention is buried here only.
+     Fix: merge both copies into one authoritative section covering all file types, then
+     delete this duplicate block. -->
 ## File Header Conventions
 
 Every file in this repository must begin with a header that declares its purpose. Apply the rule for the relevant file type below.

@@ -12,6 +12,9 @@ jobs:
     name: Harvest session metrics
     runs-on: ubuntu-latest
     # Only fire for merged PRs from copilot/* branches
+    # REVIEW(R-12): "== true" comparison is unconventional in GitHub Actions boolean
+    # contexts.  The idiomatic form is: if: github.event.pull_request.merged &&
+    # startsWith(github.event.pull_request.head.ref, 'copilot/')
     if: |
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.head.ref, 'copilot/')
@@ -76,5 +79,9 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore(metrics): add cloud Copilot session record for PR #${{ github.event.pull_request.number }}"
+            # REVIEW(R-12): Direct push to the base branch will fail silently if branch
+            # protection requires PRs for all commits. ADR-0016 acknowledges this risk
+            # but the workflow has no mitigation. Add "continue-on-error: true" and
+            # an explicit error message, or document the required bypass in repo settings.
             git push
           fi

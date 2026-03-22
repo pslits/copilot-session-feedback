@@ -41,6 +41,10 @@ jobs:
               // Extract deadline from issue body (ISO 8601 format from the form)
               const body = issue.body || '';
               // Matches "YYYY-MM-DDTHH:MMZ" or "YYYY-MM-DDTHH:MM:SSZ"
+              // REVIEW(R-22): This regex requires a UTC "Z" suffix. Timestamps using
+              // "+00:00" or any other offset format will not be matched, silently skipping
+              // SLA enforcement for those issues. Fix: extend the regex terminal to
+              // (?:Z|[+-]\d{2}:\d{2}) or enforce UTC Z format in the issue submission form.
               const slaMatch = body.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)/);
               if (!slaMatch) continue;
 

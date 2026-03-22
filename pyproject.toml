@@ -1,3 +1,12 @@
+# REVIEW(R-25): Missing [project] table. The file contains only [tool.pytest.ini_options].
+# There is no name, version, description, or authors. If this is intentionally a
+# scripts-only repo, document that in CONTRIBUTING.md. Otherwise add a minimal
+# [project] table so tooling (pip install -e, importlib.metadata) can resolve metadata.
+#
+# REVIEW(R-28): No CI pipeline runs pytest on push or PR. Hook script regressions are
+# only caught if a developer runs tests manually. Fix: add .github/workflows/ci.yml
+# running 'pytest tests/ -v' on ubuntu-latest with Python 3.11. Reference template:
+#   uses: actions/setup-python@v5 / with: python-version: '3.11' / run: pytest tests/ -v
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["tests"]

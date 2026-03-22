@@ -14,6 +14,10 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+# REVIEW(R-19): CWD assumption — this script uses Path("sessions") for log output.
+# VS Code sets CWD to workspace root when invoking hooks, so this is correct in
+# production. Any manual invocation or test run from a different directory will
+# silently write to the wrong location. Same assumption applies to all other hooks.
 
 
 _TIMEOUT_SECONDS = 2

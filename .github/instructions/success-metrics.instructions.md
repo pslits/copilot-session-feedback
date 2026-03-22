@@ -36,6 +36,9 @@ indicators.
 ## Collection Notes
 
 - **SessionEnd hook** auto-collects timestamps into `sessions/metrics/sessions.jsonl`.
+  <!-- REVIEW(R-07): Stale note — Feature #6 (session-end.py) is fully implemented.
+       sessions/metrics/sessions.jsonl exists with 35+ entries from March 2026 onwards.
+       Fix: Update to "Created by session-end.py (Feature #6, implemented March 2026)." -->
   This file may not exist until Feature #6 (SessionEnd hook) is implemented.
 - **Corrections per session** is the single manual tally — no form, no dashboard.
   Note the count at session end; one number per session.

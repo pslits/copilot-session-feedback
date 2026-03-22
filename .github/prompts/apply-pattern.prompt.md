@@ -10,7 +10,11 @@ Read [.github/skills/agentic-patterns/references/patterns-catalogue.md](../skill
 
 ## Instructions
 
-1. Identify the pattern named in `${input:pattern and scenario (e.g., Reflection pattern for a code review pipeline)}`.
+1. Identify the pattern named in `${input:pattern and scenario}`.
+<!-- REVIEW(R-20): The original variable name embedded the full example text as the variable
+     identifier: ${input:pattern and scenario (e.g., Reflection pattern for a code review pipeline)}.
+     This renders as a large input field label in the UI. The argument-hint frontmatter field
+     (line 4) already provides the example text — use the short variable name above instead. -->
 2. Look up the pattern in the catalogue: read its description, when-to-use guidance, variants, and key considerations.
 3. Explain the pattern in plain language (2–3 sentences).
 4. Describe exactly how it applies to the user's scenario:

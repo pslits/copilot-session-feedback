@@ -55,6 +55,10 @@ jobs:
               }
             }
 
+            // REVIEW(R-23): The "XXXX-" ADR number placeholder is embedded in the decision
+            // comment that gets posted to GitHub. It is easy for the Recorder to overlook.
+            // Fix: Replace XXXX with a more prominent reminder, e.g.:
+            // "<ADR-NUMBER>-<slug>.md (assign next sequential ADR number before filing)"
             const adrPath = `docs/adr/XXXX-${issue.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50)}.md`;
 
             await github.rest.issues.createComment({

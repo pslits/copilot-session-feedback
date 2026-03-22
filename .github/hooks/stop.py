@@ -10,6 +10,11 @@ from pathlib import Path
 # Allow sibling hook modules to be imported when running as a standalone script.
 sys.path.insert(0, str(Path(__file__).parent))
 from _trace import read_trace_id  # noqa: E402
+# REVIEW(R-19): CWD assumption — this script uses relative paths (e.g. Path("sessions")).
+# VS Code sets CWD to workspace root when invoking hooks, so this is correct in
+# production. Any manual invocation or test run from a different directory will
+# silently write to the wrong location. Consider documenting:
+# "Assumes CWD == repository root (set automatically by VS Code hook runner)."
 
 
 def main() -> None:

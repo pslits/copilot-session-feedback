@@ -97,6 +97,11 @@ def main() -> None:
     persist_start_ts(timestamp)
 
     # Build additionalContext — aim for ≤ 100 tokens (≈ 400 characters)
+    # REVIEW(R-16): The 100-token / 400-character aim is stated but never enforced.
+    # Current output is ~200-250 characters (safe), but any future addition can
+    # silently breach the cap. Fix: add a measurement and truncate or assert:
+    #   assert len(additional_context) <= 400, "additionalContext exceeds 400-char budget"
+    # or truncate: additional_context = additional_context[:400]
     context_lines = [
         f"project: {project}",
         f"branch: {branch}",
