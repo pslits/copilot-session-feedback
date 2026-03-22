@@ -122,3 +122,91 @@ class TestSessionEndEdgeCases:
         run_hook("session-end.py", payload, tmp_path)
         records = _read_records(tmp_path)
         assert records[0]["session_id"] == "camel-s1"
+
+
+class TestSessionEndCorrections:
+    """FD-001 / FD-002 — corrections array must be captured in sessions.jsonl."""
+
+    _CORRECTIONS_PATH = Path("sessions") / ".current_corrections"
+
+    def test_corrections_field_present_when_no_file(self, tmp_path):
+        """corrections must default to [] when .current_corrections is absent."""
+        payload = json.dumps({"session_id": "s1"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert "corrections" in records[0]
+        assert records[0]["corrections"] == []
+
+    def test_corrections_populated_from_side_channel(self, tmp_path):
+        """corrections must reflect the JSON array in .current_corrections."""
+        corrections_file = tmp_path / self._CORRECTIONS_PATH
+        corrections_file.parent.mkdir(parents=True, exist_ok=True)
+        corrections = [
+            {
+                "lens": 1,
+                "mistake": "Used wrong branch name",
+                "rule_change": "Always use feature/ prefix",
+                "rule_ref": ".github/copilot-instructions.md",
+            }
+        ]
+        corrections_file.write_text(json.dumps(corrections), encoding="utf-8")
+        payload = json.dumps({"session_id": "s1"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert records[0]["corrections"] == corrections
+
+    def test_corrections_includes_rule_ref_field(self, tmp_path):
+        """Each correction entry must carry a rule_ref field (FD-002)."""
+        corrections_file = tmp_path / self._CORRECTIONS_PATH
+        corrections_file.parent.mkdir(parents=True, exist_ok=True)
+        entry = {"lens": 2, "mistake": "bad term", "rule_change": "add vocab", "rule_ref": ".github/instructions/domain.instructions.md"}
+        corrections_file.write_text(json.dumps([entry]), encoding="utf-8")
+        payload = json.dumps({"session_id": "s1"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert "rule_ref" in records[0]["corrections"][0]
+        assert records[0]["corrections"][0]["rule_ref"] == ".github/instructions/domain.instructions.md"
+
+    def test_corrections_file_deleted_after_harvest(self, tmp_path):
+        """session-end.py must remove .current_corrections so it does not bleed into the next session."""
+        corrections_file = tmp_path / self._CORRECTIONS_PATH
+        corrections_file.parent.mkdir(parents=True, exist_ok=True)
+        corrections_file.write_text(json.dumps([{"lens": 3, "mistake": "m", "rule_change": "r", "rule_ref": None}]), encoding="utf-8")
+        payload = json.dumps({"session_id": "s1"})
+        run_hook("session-end.py", payload, tmp_path)
+        assert not corrections_file.exists()
+
+    def test_corrections_empty_list_on_malformed_json(self, tmp_path):
+        """Malformed .current_corrections must not crash the hook; corrections defaults to []."""
+        corrections_file = tmp_path / self._CORRECTIONS_PATH
+        corrections_file.parent.mkdir(parents=True, exist_ok=True)
+        corrections_file.write_text("{{not valid json}}", encoding="utf-8")
+        payload = json.dumps({"session_id": "s1"})
+        result = run_hook("session-end.py", payload, tmp_path)
+        assert result.returncode == 0
+        records = _read_records(tmp_path)
+        assert records[0]["corrections"] == []
+
+    def test_corrections_empty_list_on_non_array_json(self, tmp_path):
+        """A JSON object (not array) in .current_corrections must be silently normalised to []."""
+        corrections_file = tmp_path / self._CORRECTIONS_PATH
+        corrections_file.parent.mkdir(parents=True, exist_ok=True)
+        corrections_file.write_text(json.dumps({"lens": 1}), encoding="utf-8")
+        payload = json.dumps({"session_id": "s1"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert records[0]["corrections"] == []
+
+    def test_multiple_corrections_all_harvested(self, tmp_path):
+        """All entries in the corrections array must appear in the record."""
+        corrections_file = tmp_path / self._CORRECTIONS_PATH
+        corrections_file.parent.mkdir(parents=True, exist_ok=True)
+        entries = [
+            {"lens": 1, "mistake": "a", "rule_change": "b", "rule_ref": None},
+            {"lens": 4, "mistake": "c", "rule_change": "d", "rule_ref": ".github/hooks/stop.json"},
+        ]
+        corrections_file.write_text(json.dumps(entries), encoding="utf-8")
+        payload = json.dumps({"session_id": "s1"})
+        run_hook("session-end.py", payload, tmp_path)
+        records = _read_records(tmp_path)
+        assert len(records[0]["corrections"]) == 2

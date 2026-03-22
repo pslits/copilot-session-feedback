@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Allow sibling hook modules to be imported when running as a standalone script.
 sys.path.insert(0, str(Path(__file__).parent))
-from _trace import read_trace_id, read_start_ts, read_turn_count, reset_turn_count  # noqa: E402
+from _trace import read_trace_id, read_start_ts, read_turn_count, reset_turn_count, read_corrections, reset_corrections  # noqa: E402
 
 
 def main() -> None:
@@ -31,6 +31,8 @@ def main() -> None:
     # VS Code's SessionEnd payload never includes turn_count directly.
     turn_count = read_turn_count()
     reset_turn_count()  # Clear for the next session.
+    corrections = read_corrections()
+    reset_corrections()  # Clear for the next session.
 
     end_ts = datetime.now(timezone.utc).isoformat()
 
@@ -52,6 +54,7 @@ def main() -> None:
         "end_ts": end_ts,
         "duration_seconds": duration_seconds,
         "turn_count": turn_count,
+        "corrections": corrections,
     }
 
     metrics_dir = Path("sessions") / "metrics"

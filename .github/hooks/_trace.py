@@ -8,6 +8,7 @@ from pathlib import Path
 TRACE_ID_PATH = Path("sessions") / ".current_trace_id"
 START_TS_PATH = Path("sessions") / ".current_start_ts"
 TURN_COUNT_PATH = Path("sessions") / ".current_turn_count"
+CORRECTIONS_PATH = Path("sessions") / ".current_corrections"
 
 
 def read_trace_id() -> str:
@@ -77,5 +78,41 @@ def reset_turn_count() -> None:
     try:
         if TURN_COUNT_PATH.exists():
             TURN_COUNT_PATH.unlink()
+    except OSError:
+        pass  # Non-fatal
+
+
+def read_corrections() -> list:
+    """Read structured correction records written to sessions/.current_corrections.
+
+    Each record is a JSON object with fields:
+      - lens (int 1–4)
+      - mistake (str): what the agent did wrong
+      - rule_change (str): what rule was added or changed
+      - rule_ref (str | null): path to the artifact affected
+
+    Returns an empty list if the file is missing, empty, or malformed.
+    """
+    import json as _json
+    try:
+        raw = CORRECTIONS_PATH.read_text(encoding="utf-8").strip()
+        if not raw:
+            return []
+        parsed = _json.loads(raw)
+        if isinstance(parsed, list):
+            return parsed
+        return []
+    except (OSError, ValueError):
+        return []
+
+
+def reset_corrections() -> None:
+    """Delete the corrections file to start fresh for the next session.
+
+    Called by session-end.py after the corrections have been recorded.
+    """
+    try:
+        if CORRECTIONS_PATH.exists():
+            CORRECTIONS_PATH.unlink()
     except OSError:
         pass  # Non-fatal
