@@ -5,15 +5,14 @@ promoted to rules or artifacts.
 
 ## Health Check
 
-- Open items: 0 / 5 (target: ≤ 5)
-- Oldest open item: N/A
+- Open items: 1 / 5 (target: ≤ 5)
+- Oldest open item: FD-004 (2026-03-22)
 
 ## Open Items
 
 | ID | Observation | Entry path | Sessions seen | Priority | Status | Linked artifact |
 |----|-------------|------------|---------------|----------|--------|-----------------|
-
-*(No open items.)*
+| FD-004 | **MCP git tools bypass the security gate** — `mcp_gitkraken_git_add_or_commit` and `mcp_gitkraken_git_push` are not in `TERMINAL_TOOLS` in `pre-tool-use.py`, so `security-patterns.json` patterns (including the `git push origin main` block added for FD-003) never fire for MCP tool calls. Agent committed and attempted to push directly to `main` this session using the MCP git tool, bypassing the hook entirely. Secondary gap: no guard prevents `git commit` directly on `main` even via terminal. | Lens 4 — Quality Guardrail | 1 | Open | Extend `pre-tool-use.py` to also inspect MCP tool calls (tool name + input fields); add `mcp_gitkraken_*` to checked tool set; add `main`-branch commit guard to `security-patterns.json`. |
 
 ## Closed Items (last 30 days)
 
