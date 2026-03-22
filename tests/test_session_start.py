@@ -108,7 +108,8 @@ class TestSessionStartGracefulDegradation:
         assert "version: n/a" in ctx
 
     def test_reads_package_json_version(self, tmp_path):
-        (tmp_path / "package.json").write_text(json.dumps({"version": "4.5.6", "name": "test"}))
+        # Version is now read from pyproject.toml [project].version
+        (tmp_path / "pyproject.toml").write_text("[project]\nname = \"test\"\nversion = \"4.5.6\"\n")
         result = run_hook("session-start.py", "{}", tmp_path)
         assert result.returncode == 0
         ctx = json.loads(result.stdout)["additionalContext"]

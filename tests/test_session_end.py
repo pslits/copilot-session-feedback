@@ -29,7 +29,11 @@ class TestSessionEndHappyPath:
         assert (tmp_path / _JSONL_PATH).exists()
 
     def test_record_contains_required_fields(self, tmp_path):
-        payload = json.dumps({"session_id": "s1", "start_ts": "2026-03-20T10:00:00Z", "turn_count": 7})
+        # turn_count is now sourced from sessions/.current_turn_count, not from the payload
+        turn_count_file = tmp_path / "sessions" / ".current_turn_count"
+        turn_count_file.parent.mkdir(parents=True, exist_ok=True)
+        turn_count_file.write_text("7")
+        payload = json.dumps({"session_id": "s1", "start_ts": "2026-03-20T10:00:00Z"})
         run_hook("session-end.py", payload, tmp_path)
         records = _read_records(tmp_path)
         r = records[0]
