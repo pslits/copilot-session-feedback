@@ -1,11 +1,6 @@
 ---
 name: research
 description: Read-only codebase research to map the workspace before making changes. Use at the start of any RPI workflow before planning or implementing.
-# REVIEW(R-10): 'agent: agent' activates generic agent mode, not @researcher.
-# If the intent is always to invoke @researcher, use a custom agent name value
-# (if VS Code supports it for the installed version) or document that this prompt
-# must be used with @researcher already active. The current form may route to
-# whichever agent is currently selected, producing non-deterministic invocations.
 agent: agent
 tools: [read, search]
 ---

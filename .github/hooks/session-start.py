@@ -27,11 +27,6 @@ def run_git(args: list[str]) -> str:
         return "unknown"
 
 
-# REVIEW(R-06): This function always returns "n/a" because there is no package.json
-# in this repository (it is a pure-Python / Markdown project).  The version field
-# is permanently "n/a" in every session context block.  Either remove the field or
-# replace it with the version sourced from pyproject.toml [project] version, which
-# does exist (e.g. using importlib.metadata or a simple TOML parse).
 def read_package_version() -> str:
     """Read version from package.json, or 'n/a' if absent or missing the field."""
     try:
@@ -97,11 +92,6 @@ def main() -> None:
     persist_start_ts(timestamp)
 
     # Build additionalContext — aim for ≤ 100 tokens (≈ 400 characters)
-    # REVIEW(R-16): The 100-token / 400-character aim is stated but never enforced.
-    # Current output is ~200-250 characters (safe), but any future addition can
-    # silently breach the cap. Fix: add a measurement and truncate or assert:
-    #   assert len(additional_context) <= 400, "additionalContext exceeds 400-char budget"
-    # or truncate: additional_context = additional_context[:400]
     context_lines = [
         f"project: {project}",
         f"branch: {branch}",

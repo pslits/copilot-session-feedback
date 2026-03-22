@@ -1,7 +1,4 @@
 ---
-# REVIEW(R-18): applyTo is missing session-end.json and notification.json.
-# Both files follow the same object-keyed schema but are outside the scope of this
-# format-enforcement instruction. Add both, or document the deliberate omission.
 applyTo: ".github/hooks/stop.json,.github/hooks/pre-tool-use.json,.github/hooks/post-tool-use.json,.github/hooks/session-start.json,.github/hooks/pre-compact.json,.github/hooks/post-compact.json"
 ---
 
@@ -53,12 +50,6 @@ indefinite hangs while accommodating the slowest legitimate operation (formatter
 When any hook script exceeds the budget or encounters an unrecoverable error, exit with code **2**
 (soft block). Exit code 2 informs the VS Code agent of the failure without hard-blocking the
 session.
-<!-- REVIEW(R-11): The exit-2 contract is correct for blocking hooks (PreToolUse, Stop).
-     However, session-end.py and post-compact.py intentionally exit 0 on all errors by design —
-     they must never block session close or the post-compaction flow. This carve-out is not
-     documented here, leaving readers believing all hooks should exit 2 on failure.
-     Fix: Add a note: "Hooks that must never block (SessionEnd, PostCompact) always exit 0
-     even on error. The exit-2 contract applies only to hooks with a blocking role (PreToolUse, Stop)." -->
 Reason: exit 2 allows the agent to log and surface the issue without preventing session
 continuation — hook failures are advisory, not fatal.
 

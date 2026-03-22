@@ -6,10 +6,6 @@ tools:
   - edit/createFile
 ---
 
-<!-- REVIEW(R-17): This file is 149 lines — one line from the 150-line *.prompt.md body cap.
-     Any future addition triggers the overflow action (extract reusable sections into a skill
-     reference). Refactor now: move the six-stage pipeline description into
-     .github/skills/feedback-analyser/references/pipeline-context.md and link to it. -->
 Apply the agentic pattern design process to the Copilot Session-to-Knowledge Feedback Loop system defined in the guide below.
 
 Read these files in full before proceeding — all three are mandatory:

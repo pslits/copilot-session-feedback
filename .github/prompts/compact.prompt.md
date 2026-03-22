@@ -19,11 +19,6 @@ Create a compact session summary that preserves the session's reusable knowledge
 5. In `## What Was Tried`, use a table with the columns `| Attempt | Outcome | Reason for abandonment |`.
 6. In `## Workflow Steps Discovered`, use a numbered list of reusable workflows found during the session.
 7. In `## Corrections`, use a table with the columns `| Correction | Recurrence count | Source lens | Promotion candidate (Y/N) |`.
-<!-- REVIEW(R-27): The "Source lens" column accepts free text but valid values are
-     not documented here. feedback-lenses.instructions.md uses lens numbers 1–4.
-     Fix: Change the header to "Source lens (1–4)" or add a constraint bullet:
-     "Source lens values: 1–4 (1=Recurring Correction, 2=Domain Vocabulary,
-     3=Workflow Friction, 4=Quality Guardrail)." -->
 8. Prefer bullets and tables over prose paragraphs so the output stays compact and reviewable.
 
 ## Constraints

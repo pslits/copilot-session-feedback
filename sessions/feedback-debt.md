@@ -10,19 +10,7 @@ promoted to rules or artifacts.
 
 ## Open Items
 
-<!-- REVIEW(R-29): Multiple issues with FD-001:
-  1. Lens 1 assignment is premature — Lens 1 (Recurring Correction) requires ≥ 2
-     sessions; "Sessions seen" = 1 means this is an observation, not yet a Lens 1 signal.
-  2. FD-001 conflates two separate problems: (a) corrections data gap in sessions.jsonl
-     schema, and (b) hook tooling gap (Stop hook prompts free text, not structured input).
-     These should be tracked as separate items with separate fix paths.
-  3. "Linked artifact" references ADR-0016, which explicitly excludes corrections data.
-     The correct reference is a new ADR (candidate: ADR-0018) covering corrections schema.
-  4. The turn_count null gap (34/35 VS Code sessions have null turn_count) is a separate
-     recurring issue not tracked here — should be added as FD-002.
-  5. "Oldest open item" shows the artifact reference (ADR-0016), not the date opened.
-     The field should show the date for meaningful staleness tracking.
--->
+
 
 | ID | Observation | Pattern triggered | Sessions seen | Priority | Status | Linked artifact |
 |----|-------------|-------------------|---------------|----------|--------|-----------------|
