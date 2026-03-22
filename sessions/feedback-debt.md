@@ -5,14 +5,15 @@ promoted to rules or artifacts.
 
 ## Health Check
 
-- Open items: 1 / 5 (target: ≤ 5)
-- Oldest open item: FD-004 (2026-03-22)
+- Open items: 0 / 5 (target: ≤ 5)
+- Oldest open item: N/A
 
 ## Open Items
 
 | ID | Observation | Entry path | Sessions seen | Priority | Status | Linked artifact |
 |----|-------------|------------|---------------|----------|--------|-----------------|
-| FD-004 | **MCP git tools bypass the security gate** — `mcp_gitkraken_git_add_or_commit` and `mcp_gitkraken_git_push` are not in `TERMINAL_TOOLS` in `pre-tool-use.py`, so `security-patterns.json` patterns (including the `git push origin main` block added for FD-003) never fire for MCP tool calls. Agent committed and attempted to push directly to `main` this session using the MCP git tool, bypassing the hook entirely. Secondary gap: no guard prevents `git commit` directly on `main` even via terminal. | Lens 4 — Quality Guardrail | 2 ⚠️ Lens 1 ready | P1 | Open | Extend `pre-tool-use.py` to also inspect MCP tool calls (tool name + input fields); add `mcp_gitkraken_*` to checked tool set; add `main`-branch commit guard to `security-patterns.json`. |
+
+*(No open items.)*
 
 ## Closed Items (last 30 days)
 
@@ -21,6 +22,7 @@ promoted to rules or artifacts.
 | FD-001 | `sessions.jsonl` missing structured `corrections` array (lens, mistake, rule_change, rule_ref) | 2026-03-22 | `.github/hooks/_trace.py` (`read_corrections`, `reset_corrections`); `session-end.py` (`corrections` field); `stop.json` additionalContext updated; `tests/test_session_end.py` `TestSessionEndCorrections` |
 | FD-002 | `sessions.jsonl` missing `rule_ref` field for knowledge provenance | 2026-03-22 | Same artifacts as FD-001 — `rule_ref` is a field inside each corrections array entry |
 | FD-003 | No guardrail against direct push to `main` | 2026-03-22 | HITL issue #45 (branch-protection rule added to repo settings) |
+| FD-004 | MCP git tools (`mcp_gitkraken_git_add_or_commit`, `mcp_gitkraken_git_push`) bypass the pre-tool-use security gate | 2026-03-22 | `pre-tool-use.py` (`MCP_GIT_TOOLS`, `check_mcp_git_operation()`); `security-patterns.json` (`blocked_mcp_tools`); `copilot-instructions.md` (Git Operations rules + PRIORITY comments); `tests/test_pre_tool_use.py` (`TestPreToolUseMcpGitBlock`) |
 
 ---
 

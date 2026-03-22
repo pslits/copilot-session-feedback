@@ -79,5 +79,17 @@
             "reason": "Operations involving 'password' in the path or command may expose sensitive credentials.",
             "next": "Use a secrets manager or environment variable injection to access passwords safely."
         }
+    ],
+    "blocked_mcp_tools": [
+        {
+            "pattern": "mcp_gitkraken_git_add_or_commit",
+            "reason": "MCP git tools bypass the pre-tool-use security gate. Terminal git must be used so push-to-main and other dangerous-command guards can intercept.",
+            "next": "Use terminal git instead: 'git add <files>' and 'git commit -m <message>', on a feature branch (not main)."
+        },
+        {
+            "pattern": "mcp_gitkraken_git_push",
+            "reason": "MCP git push bypasses the pre-tool-use security gate. Terminal git must be used so push-to-main guards can intercept.",
+            "next": "Use terminal 'git push' instead, after verifying you are on a feature branch and not main."
+        }
     ]
 }

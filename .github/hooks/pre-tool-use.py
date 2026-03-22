@@ -19,6 +19,9 @@ TERMINAL_TOOLS = {"run_terminal", "run_in_terminal", "bash", "powershell"}
 # Tools that read file content — checked against credential_access patterns.
 CREDENTIAL_ACCESS_TOOLS = {"read_file", "open_file", "view_file", "cat"}
 
+# MCP git tools that bypass the terminal security gate — always blocked.
+MCP_GIT_TOOLS = {"mcp_gitkraken_git_add_or_commit", "mcp_gitkraken_git_push"}
+
 
 def load_patterns() -> dict:
     """Load blocked patterns from the project-local config file.
@@ -111,6 +114,25 @@ def check_terminal_command(tool_input: dict, patterns: dict) -> dict | None:
     return None
 
 
+def check_mcp_git_operation(tool_name: str, patterns: dict) -> dict | None:
+    """Return a block message if the MCP git tool is in the blocked list.
+
+    MCP git tools bypass the terminal security gate entirely; they must be
+    hard-blocked here so the agent is redirected to terminal git, where
+    dangerous_terminal patterns (e.g. push-to-main guards) can fire.
+    """
+    blocked: list = patterns.get("blocked_mcp_tools", [])
+    for entry in blocked:
+        pattern, reason, next_steps = _entry_fields(entry)
+        if tool_name == pattern.lower():
+            return {
+                "blocked": f"Attempted to use blocked MCP git tool '{tool_name}'",
+                "reason": reason,
+                "next": next_steps,
+            }
+    return None
+
+
 def check_credential_access(tool_input: dict, patterns: dict) -> dict | None:
     """Return a 3-field block message dict if the file path matches a credential access pattern."""
     credential_patterns: list = patterns.get("credential_access", [])
@@ -165,6 +187,8 @@ def main() -> None:
         block_msg = check_terminal_command(tool_input, patterns)
     elif tool_name in CREDENTIAL_ACCESS_TOOLS:
         block_msg = check_credential_access(tool_input, patterns)
+    elif tool_name in MCP_GIT_TOOLS:
+        block_msg = check_mcp_git_operation(tool_name, patterns)
 
     if block_msg:
         print(
