@@ -5,7 +5,7 @@ promoted to rules or artifacts.
 
 ## Health Check
 
-- Open items: 2 / 5 (target: ≤ 5)
+- Open items: 3 / 5 (target: ≤ 5)
 - Oldest open item: ADR-0016 review
 
 ## Open Items
@@ -14,6 +14,7 @@ promoted to rules or artifacts.
 |----|-------------|------------|---------------|----------|--------|-----------------|
 | FD-001 | `sessions.jsonl` does not capture **corrections data** — the structured fields `lens` (1–4), `mistake`, and `rule_change` that would allow automatic recurrence detection. Without this field, "corrections per session" can only be tallied manually. | Direct report | 1 | P1 | Open | New schema: add `corrections` array to session record; update Stop hook to prompt for structured input rather than free-text. |
 | FD-002 | `sessions.jsonl` does not capture **rule attribution** — which `copilot-instructions.md` rule was added or changed as a result of a session. Without `rule_ref`, it is impossible to trace knowledge provenance automatically. | Direct report | 1 | P2 | Open | Same schema work as FD-001; add `rule_ref` field alongside `corrections` array. |
+| FD-003 | **No guardrail prevents direct push to `main`** — the VS Code agent pushed two commits directly to `main` (commits `4c1c6c5`, `647c64f`) without a branch or PR, bypassing the review workflow. `security-patterns.json` blocked `git push --force` but not `git push origin main`. Prompted HITL issue #45. | Lens 4 — Quality Guardrail | 1 | P1 | Open | Added `git push origin main`, `git push -u origin main`, and `git push --set-upstream origin main` to `dangerous_terminal` patterns in `security-patterns.json` (this session). Consider adding branch-protection rule to repo settings as defense-in-depth. |
 
 ## Closed Items (last 30 days)
 
