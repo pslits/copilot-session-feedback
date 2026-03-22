@@ -5,6 +5,8 @@
 <!-- # PRIORITY: HIGH: File headers by type — .py: shebang+one-line comment; .md: H1+sentence; agents/prompts/skills: YAML frontmatter -->
 <!-- # PRIORITY: HIGH: Knowledge artifact caps — copilot-instructions.md≤200 lines; *.instructions.md≤100 lines; *.prompt.md≤150 lines -->
 <!-- # PRIORITY: HIGH: Hooks exit 0=success, 2=soft-block; SessionEnd+PostCompact always exit 0 (must not block session) -->
+<!-- # PRIORITY: HIGH: Always use terminal git for commit/push — never MCP git tools; MCP git bypasses the pre-tool-use security gate -->
+<!-- # PRIORITY: HIGH: Never commit directly to main — create a feature branch and open a PR -->
 
 ## Commit Message Guidelines
 
@@ -140,6 +142,14 @@ description: Produces a verified, human-approved implementation plan using the
   Planning, Reflection, Goal Setting, and Human-in-the-Loop patterns.
 ---
 ```
+
+---
+
+## Git Operations
+
+Rules:
+- **Always use terminal `git`** for commit and push. MCP git tools (`mcp_gitkraken_git_add_or_commit`, `mcp_gitkraken_git_push`, etc.) bypass the pre-tool-use security gate and are hard-blocked by it.
+- **Never commit directly to `main`.** Create a feature branch, commit there, and open a PR — even for small changes.
 
 ---
 

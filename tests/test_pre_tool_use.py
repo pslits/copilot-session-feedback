@@ -135,3 +135,93 @@ class TestPreToolUseBlockPaths:
         payload = json.dumps({"tool_name": "powershell", "tool_input": {"command": "format c: /quick"}})
         result = run_hook("pre-tool-use.py", payload, tmp_path)
         assert result.returncode == 2
+
+
+class TestPreToolUseMcpGitBlock:
+    """FD-004 — MCP git tools must be hard-blocked to prevent security gate bypass."""
+
+    _PATTERNS = {
+        "protected_files": [],
+        "dangerous_terminal": [],
+        "blocked_mcp_tools": [
+            {
+                "pattern": "mcp_gitkraken_git_add_or_commit",
+                "reason": "MCP git bypasses the security gate.",
+                "next": "Use terminal git instead.",
+            },
+            {
+                "pattern": "mcp_gitkraken_git_push",
+                "reason": "MCP git push bypasses the security gate.",
+                "next": "Use terminal git push instead.",
+            },
+        ],
+    }
+
+    def test_mcp_git_commit_blocked(self, tmp_path):
+        _write_patterns(tmp_path, self._PATTERNS)
+        payload = json.dumps({
+            "tool_name": "mcp_gitkraken_git_add_or_commit",
+            "tool_input": {"action": "commit", "directory": ".", "message": "feat: something"},
+        })
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert result.returncode == 2
+
+    def test_mcp_git_push_blocked(self, tmp_path):
+        _write_patterns(tmp_path, self._PATTERNS)
+        payload = json.dumps({
+            "tool_name": "mcp_gitkraken_git_push",
+            "tool_input": {"directory": "."},
+        })
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert result.returncode == 2
+
+    def test_mcp_git_block_has_three_field_schema(self, tmp_path):
+        """MCP git blocks must emit the standard 3-field escalation schema."""
+        _write_patterns(tmp_path, self._PATTERNS)
+        payload = json.dumps({
+            "tool_name": "mcp_gitkraken_git_add_or_commit",
+            "tool_input": {"action": "commit", "directory": ".", "message": "x"},
+        })
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert "BLOCKED" in result.stderr
+        assert "REASON" in result.stderr
+        assert "NEXT" in result.stderr
+
+    def test_mcp_git_block_uses_configured_reason(self, tmp_path):
+        _write_patterns(tmp_path, self._PATTERNS)
+        payload = json.dumps({
+            "tool_name": "mcp_gitkraken_git_push",
+            "tool_input": {"directory": "."},
+        })
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert "MCP git push bypasses the security gate." in result.stderr
+
+    def test_mcp_git_add_action_also_blocked(self, tmp_path):
+        """The 'add' action on mcp_gitkraken_git_add_or_commit must also be blocked."""
+        _write_patterns(tmp_path, self._PATTERNS)
+        payload = json.dumps({
+            "tool_name": "mcp_gitkraken_git_add_or_commit",
+            "tool_input": {"action": "add", "directory": ".", "files": ["README.md"]},
+        })
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert result.returncode == 2
+
+    def test_mcp_git_not_blocked_when_no_patterns_entry(self, tmp_path):
+        """If blocked_mcp_tools is absent, the hook must fail open (allow)."""
+        _write_patterns(tmp_path, {"protected_files": [], "dangerous_terminal": []})
+        payload = json.dumps({
+            "tool_name": "mcp_gitkraken_git_push",
+            "tool_input": {"directory": "."},
+        })
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert result.returncode == 0
+
+    def test_other_mcp_tools_not_blocked(self, tmp_path):
+        """Non-git MCP tools (e.g. mcp_gitkraken_gitkraken_workspace_list) must pass through."""
+        _write_patterns(tmp_path, self._PATTERNS)
+        payload = json.dumps({
+            "tool_name": "mcp_gitkraken_gitkraken_workspace_list",
+            "tool_input": {},
+        })
+        result = run_hook("pre-tool-use.py", payload, tmp_path)
+        assert result.returncode == 0
