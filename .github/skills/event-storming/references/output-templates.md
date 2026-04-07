@@ -100,12 +100,11 @@ divergence occurs. Use the same `→` chain notation as the happy path.
 
 **⑴ Variation name**
 ```
-🔵 `Command where divergence occurs`
-  → 🩷 System
-    → *(condition that triggers this path)*
-      → 🔵 `Next Command`
-        → 🩷 System
-          → 🟠 `Resulting Event`
+� `Event at divergence point`
+  → 🟣 Policy Name: "Whenever [event], [reaction]"
+    └── [condition for this path] ──→ 🔵 `Next Command`
+      → 🩷 System
+        → 🟠 `Resulting Event`
 ```
 
 #### Read Models
